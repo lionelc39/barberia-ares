@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Simple customizations */
+body { background-color: #f8f8f9; font-family: Inter, Arial, sans-serif; }
+.btn-primary {
+  @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold;
+}
+.card { @apply bg-white shadow rounded-lg p-6; }
