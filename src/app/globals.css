@@ -1,10 +1,284 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Simple customizations */
-body { background-color: #f8f8f9; font-family: Inter, Arial, sans-serif; }
-.btn-primary {
-  @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold;
+/* Variables de color personalizadas */
+:root {
+  --color-primary: #0A0A0A;
+  --color-gold: #D4AF37;
+  --color-gold-dark: #B8941F;
+  --color-dark: #1A1A1A;
+  --color-darker: #0A0A0A;
+  --color-light: #F5F5F5;
+  --color-white: #FFFFFF;
+  --color-gray: #6B7280;
+  --color-gray-light: #E5E7EB;
 }
-.card { @apply bg-white shadow rounded-lg p-6; }
+
+/* Estilos base */
+* {
+  @apply antialiased;
+}
+
+body {
+  background: linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--color-primary);
+  min-height: 100vh;
+}
+
+/* Tipografía */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Componentes reutilizables */
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold;
+  @apply transition-all duration-300 ease-in-out;
+  @apply shadow-md hover:shadow-xl;
+  @apply transform hover:-translate-y-0.5;
+}
+
+.btn-gold {
+  @apply bg-[#D4AF37] text-black hover:bg-[#B8941F];
+}
+
+.btn-black {
+  @apply bg-black text-white hover:bg-[#1A1A1A] border border-[#D4AF37];
+}
+
+.btn-outline {
+  @apply border-2 border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black;
+}
+
+/* Card con efecto premium */
+.card {
+  @apply bg-white shadow-2xl rounded-2xl p-8;
+  @apply border border-gray-100;
+  @apply transition-all duration-300;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #D4AF37 0%, #B8941F 100%);
+}
+
+.card:hover {
+  @apply shadow-3xl transform scale-[1.01];
+}
+
+/* Inputs mejorados */
+.input-field {
+  @apply w-full px-4 py-3 border-2 border-gray-200 rounded-lg;
+  @apply focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20;
+  @apply transition-all duration-200;
+  @apply bg-white text-gray-900;
+}
+
+.input-field:focus {
+  @apply shadow-md;
+}
+
+.input-field::placeholder {
+  @apply text-gray-400;
+}
+
+/* Container principal con fondo */
+.page-container {
+  @apply min-h-screen;
+  background: linear-gradient(135deg, #F5F5F5 0%, #FFFFFF 100%);
+}
+
+/* Header mejorado */
+.header-gradient {
+  background: linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%);
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.1);
+}
+
+/* Animaciones personalizadas */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-gold {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(212, 175, 55, 0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.5s ease-out;
+}
+
+/* Estilos para react-datepicker personalizados */
+.react-datepicker {
+  @apply border-2 border-[#D4AF37] rounded-xl shadow-2xl;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.react-datepicker__header {
+  @apply bg-gradient-to-r from-[#0A0A0A] to-[#1A1A1A] border-b-2 border-[#D4AF37] rounded-t-xl;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name {
+  @apply text-[#D4AF37] font-semibold;
+}
+
+.react-datepicker__day {
+  @apply text-gray-700 hover:bg-[#D4AF37]/10 rounded-lg;
+  @apply transition-all duration-200;
+}
+
+.react-datepicker__day--selected {
+  @apply bg-[#D4AF37] text-black font-bold;
+  @apply hover:bg-[#B8941F];
+}
+
+.react-datepicker__day--keyboard-selected {
+  @apply bg-[#D4AF37]/20;
+}
+
+.react-datepicker__day--disabled {
+  @apply text-gray-300 cursor-not-allowed;
+}
+
+/* Slots de horarios */
+.time-slot {
+  @apply p-3 border-2 border-gray-200 rounded-lg text-center;
+  @apply transition-all duration-200 cursor-pointer;
+  @apply hover:border-[#D4AF37] hover:bg-[#D4AF37]/5;
+  @apply font-medium text-gray-700;
+}
+
+.time-slot.selected {
+  @apply bg-gradient-to-r from-[#0A0A0A] to-[#1A1A1A];
+  @apply border-[#D4AF37] text-[#D4AF37];
+  @apply shadow-lg;
+  animation: pulse-gold 2s infinite;
+}
+
+.time-slot:disabled {
+  @apply opacity-40 cursor-not-allowed hover:border-gray-200 hover:bg-transparent;
+}
+
+/* Loading spinner */
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #D4AF37;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Toast notifications */
+.toast {
+  @apply fixed top-4 right-4 z-50;
+  @apply bg-white shadow-2xl rounded-xl p-4 border-l-4;
+  @apply animate-slideIn;
+  max-width: 400px;
+}
+
+.toast.success {
+  @apply border-green-500;
+}
+
+.toast.error {
+  @apply border-red-500;
+}
+
+.toast.info {
+  @apply border-[#D4AF37];
+}
+
+/* Efectos hover para links */
+a {
+  @apply transition-all duration-200;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #D4AF37 0%, #B8941F 100%);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B8941F;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card {
+    @apply p-6;
+  }
+  
+  .btn-primary {
+    @apply px-4 py-2 text-sm;
+  }
+}
+
+/* Gradient text effect */
+.text-gradient {
+  background: linear-gradient(135deg, #D4AF37 0%, #B8941F 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Section divider */
+.section-divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #D4AF37 50%, transparent 100%);
+  margin: 2rem 0;
+}
