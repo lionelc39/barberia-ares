@@ -65,4 +65,4 @@ export default function CalendarPicker({ onSelectSlot }: { onSelectSlot: (d: Dat
       <div className="text-sm text-muted mt-3">Mostrar sólo horarios libres — los ocupados aparecen atenuados.</div>
     </div>
   )
-}
+} 
