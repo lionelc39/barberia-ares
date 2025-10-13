@@ -12,3 +12,9 @@ export const getAvailableSlots = (date: Date) => {
   }
   return slots
 }
+// Función auxiliar para verificar si un horario está disponible
+export function isSlotAvailable(selectedDate: Date, bookedSlots: Date[]) {
+  return !bookedSlots.some(
+    (slot) => Math.abs(slot.getTime() - selectedDate.getTime()) < 30 * 60 * 1000 // compara si hay turno reservado en ±30min
+  );
+}
