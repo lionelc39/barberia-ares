@@ -4,10 +4,18 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
-// Inicializar Resend con tu API key
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 export async function POST(request: Request) {
+  // Inicializar Resend DENTRO de la función (no afuera)
+  const apiKey = process.env.RESEND_API_KEY
+  
+  if (!apiKey) {
+    return NextResponse.json(
+      { error: 'RESEND_API_KEY no está configurada' },
+      { status: 500 }
+    )
+  }
+  
+  const resend = new Resend(apiKey)
   try {
     // Obtener datos del body
     const { to, subject, tipo, datos } = await request.json()
