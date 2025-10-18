@@ -3,41 +3,54 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
-import { Menu } from 'lucide-react'
 
-export default function Header(){
-  const [open, setOpen] = useState(false)
+export default function Header() {
+  const [menuOpen, setMenuOpen] = useState(false)
+
   return (
-    <header className="border-b bg-white">
-      <div className="container flex items-center justify-between py-3">
-        <Link href="/" className="flex items-center gap-3">
-          <div style={{width:48, height:48}}>
-            <Image src="/logo.png" alt="Logo" width={48} height={48} className="rounded-full" />
+    <header className="header-modern">
+      <nav className="nav-modern">
+        <Link href="/" className="logo-modern">
+          <div className="logo-icon-modern">
+            <Image src="/logo.png" alt="BA" width={40} height={40} className="rounded-full" />
           </div>
-          <div>
-            <div className="font-semibold">Barber Ares</div>
-            <div className="text-xs text-muted">Barbería Premium</div>
-          </div>
+          <span className="logo-text">Barbería Ares</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-4">
-          <Link href="/reserva" className="text-sm">Reservar</Link>
-          <Link href="/login" className="text-sm">Iniciar sesión</Link>
-          <a href="https://www.instagram.com/barber.ares" target="_blank" rel="noreferrer" className="btn-ghost">Instagram</a>
-        </nav>
+        {/* Desktop Navigation */}
+        <div className="nav-actions-modern">
+          <Link href="/reserva" className="nav-link-modern">
+            Servicios
+          </Link>
+          <Link href="/reserva" className="btn-primary-modern">
+            Reservar ahora
+          </Link>
+        </div>
 
-        <button className="md:hidden p-2" onClick={()=>setOpen(!open)} aria-label="Abrir menu">
-          <Menu />
+        {/* Mobile Menu Button */}
+        <button 
+          className="menu-mobile-modern"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
         </button>
-      </div>
+      </nav>
 
-      {open && (
-        <div className="md:hidden border-t">
-          <div className="flex flex-col p-4 gap-2">
-            <Link href="/reserva" onClick={()=>setOpen(false)}>Reservar</Link>
-            <Link href="/login" onClick={()=>setOpen(false)}>Iniciar sesión</Link>
-            <a href="https://www.instagram.com/barber.ares" target="_blank" rel="noreferrer">Instagram</a>
-          </div>
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <div className="mobile-menu-modern">
+          <Link href="/reserva" onClick={() => setMenuOpen(false)}>
+            Servicios
+          </Link>
+          <Link href="/reserva" onClick={() => setMenuOpen(false)}>
+            Reservar ahora
+          </Link>
+          <Link href="/login" onClick={() => setMenuOpen(false)}>
+            Iniciar sesión
+          </Link>
         </div>
       )}
     </header>
