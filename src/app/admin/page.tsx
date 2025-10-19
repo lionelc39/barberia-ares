@@ -1,6 +1,4 @@
-// Archivo: src/app/admin/page.tsx
-// Coloca este archivo en: src/app/admin/page.tsx
-
+// src/app/admin/page.tsx
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -14,6 +12,9 @@ type Turno = {
   whatsapp: string
   fecha: string
   hora: string
+  servicio: string
+  precio: number
+  duracion: string
   estado: string
   created_at: string
 }
@@ -25,10 +26,8 @@ export default function AdminPanel() {
   const [password, setPassword] = useState('')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
-  // Contraseña simple (cámbiala por una más segura)
   const ADMIN_PASSWORD = 'barberia2024'
 
-  // Cargar turnos desde Supabase
   const cargarTurnos = async () => {
     setLoading(true)
     try {
@@ -38,7 +37,6 @@ export default function AdminPanel() {
         .order('fecha', { ascending: true })
         .order('hora', { ascending: true })
 
-      // Filtros según selección
       const hoy = new Date().toISOString().split('T')[0]
       
       if (filter === 'hoy') {
@@ -59,7 +57,6 @@ export default function AdminPanel() {
     }
   }
 
-  // Cambiar estado del turno
   const cambiarEstado = async (id: string, nuevoEstado: string) => {
     try {
       const { error } = await supabase
@@ -69,21 +66,19 @@ export default function AdminPanel() {
 
       if (error) throw error
       
-      // Actualizar la lista local
       setTurnos(turnos.map(t => 
         t.id === id ? { ...t, estado: nuevoEstado } : t
       ))
       
-      alert('Estado actualizado correctamente')
+      alert('Estado actualizado')
     } catch (error) {
-      console.error('Error al actualizar estado:', error)
-      alert('Error al actualizar el estado')
+      console.error('Error:', error)
+      alert('Error al actualizar')
     }
   }
 
-  // Eliminar turno
   const eliminarTurno = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar este turno?')) return
+    if (!confirm('¿Eliminar este turno?')) return
     
     try {
       const { error } = await supabase
@@ -94,21 +89,19 @@ export default function AdminPanel() {
       if (error) throw error
       
       setTurnos(turnos.filter(t => t.id !== id))
-      alert('Turno eliminado correctamente')
+      alert('Turno eliminado')
     } catch (error) {
-      console.error('Error al eliminar:', error)
-      alert('Error al eliminar el turno')
+      console.error('Error:', error)
+      alert('Error al eliminar')
     }
   }
 
-  // Cargar turnos al cambiar filtro
   useEffect(() => {
     if (isAuthenticated) {
       cargarTurnos()
     }
   }, [filter, isAuthenticated])
 
-  // Pantalla de login
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -126,10 +119,10 @@ export default function AdminPanel() {
           }}>
             <input
               type="password"
-              placeholder="Contraseña de administrador"
+              placeholder="Contraseña"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full mb-4"
+              className="w-full mb-4 p-3 border-2 rounded-lg"
               autoFocus
             />
             <button type="submit" className="btn-primary w-full">
@@ -141,11 +134,9 @@ export default function AdminPanel() {
     )
   }
 
-  // Panel de administración
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container max-w-6xl">
-        {/* Encabezado */}
+      <div className="container max-w-7xl mx-auto px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Panel de Administración</h1>
           <p className="text-muted">Gestiona los turnos de la barbería</p>
@@ -194,10 +185,10 @@ export default function AdminPanel() {
           </div>
         </div>
 
-        {/* Estadísticas rápidas */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {/* Estadísticas */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="card">
-            <p className="text-sm text-muted mb-1">Total de turnos</p>
+            <p className="text-sm text-muted mb-1">Total</p>
             <p className="text-2xl font-bold">{turnos.length}</p>
           </div>
           <div className="card">
@@ -212,75 +203,84 @@ export default function AdminPanel() {
               {turnos.filter(t => t.estado === 'reservado').length}
             </p>
           </div>
+          <div className="card">
+            <p className="text-sm text-muted mb-1">Ingresos estimados</p>
+            <p className="text-2xl font-bold text-blue-600">
+              ${turnos.reduce((sum, t) => sum + (t.precio || 0), 0).toLocaleString()}
+            </p>
+          </div>
         </div>
 
         {/* Lista de turnos */}
-        <div className="card">
+        <div className="space-y-4">
           {loading ? (
             <div className="flex justify-center py-12">
               <div className="spinner"></div>
             </div>
           ) : turnos.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="card text-center py-12">
               <p className="text-muted">No hay turnos para mostrar</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b-2">
-                    <th className="text-left py-3 px-4">Fecha/Hora</th>
-                    <th className="text-left py-3 px-4">Cliente</th>
-                    <th className="text-left py-3 px-4">Contacto</th>
-                    <th className="text-left py-3 px-4">Estado</th>
-                    <th className="text-left py-3 px-4">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {turnos.map((turno) => (
-                    <tr key={turno.id} className="border-b hover:bg-gray-50">
-                      <td className="py-4 px-4">
-                        <div className="font-medium">
-                          {format(parseISO(turno.fecha), "dd 'de' MMMM", { locale: es })}
-                        </div>
-                        <div className="text-sm text-muted">{turno.hora}</div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="font-medium">{turno.nombre_cliente}</div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="text-sm">
-                          📧 {turno.email}
-                        </div>
-                        <div className="text-sm">
-                          📱 {turno.whatsapp}
-                        </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <select
-                          value={turno.estado}
-                          onChange={(e) => cambiarEstado(turno.id, e.target.value)}
-                          className="px-3 py-1 rounded-lg text-sm border-2"
-                        >
-                          <option value="reservado">⏳ Reservado</option>
-                          <option value="confirmado">✅ Confirmado</option>
-                          <option value="completado">✔️ Completado</option>
-                          <option value="cancelado">❌ Cancelado</option>
-                        </select>
-                      </td>
-                      <td className="py-4 px-4">
-                        <button
-                          onClick={() => eliminarTurno(turno.id)}
-                          className="text-red-600 hover:text-red-800 text-sm font-medium"
-                        >
-                          🗑️ Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            turnos.map((turno) => (
+              <div key={turno.id} className="card hover:shadow-lg transition-all">
+                <div className="flex flex-col md:flex-row md:items-center gap-4">
+                  {/* Fecha y hora */}
+                  <div className="md:w-48">
+                    <div className="text-lg font-bold">
+                      {format(parseISO(turno.fecha), "dd MMM", { locale: es })}
+                    </div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {turno.hora}
+                    </div>
+                    <div className="text-sm text-muted">{turno.duracion}</div>
+                  </div>
+
+                  {/* Servicio */}
+                  <div className="flex-1">
+                    <div className="font-bold text-lg mb-1">{turno.servicio}</div>
+                    <div className="text-sm text-muted mb-2">
+                      Cliente: <strong>{turno.nombre_cliente}</strong>
+                    </div>
+                    <div className="flex flex-wrap gap-2 text-sm">
+                      <span className="bg-gray-100 px-2 py-1 rounded">
+                        📧 {turno.email}
+                      </span>
+                      <span className="bg-gray-100 px-2 py-1 rounded">
+                        📱 {turno.whatsapp}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Precio */}
+                  <div className="text-right md:w-32">
+                    <div className="text-2xl font-bold">
+                      ${turno.precio?.toLocaleString() || '0'}
+                    </div>
+                  </div>
+
+                  {/* Estado y acciones */}
+                  <div className="md:w-48 space-y-2">
+                    <select
+                      value={turno.estado}
+                      onChange={(e) => cambiarEstado(turno.id, e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg text-sm border-2 font-medium"
+                    >
+                      <option value="reservado">⏳ Reservado</option>
+                      <option value="confirmado">✅ Confirmado</option>
+                      <option value="completado">✔️ Completado</option>
+                      <option value="cancelado">❌ Cancelado</option>
+                    </select>
+                    <button
+                      onClick={() => eliminarTurno(turno.id)}
+                      className="w-full text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg text-sm font-medium transition"
+                    >
+                      🗑️ Eliminar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
           )}
         </div>
       </div>
