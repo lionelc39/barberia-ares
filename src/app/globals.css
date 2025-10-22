@@ -139,3 +139,45 @@
     right: 1rem;
   }
 }
+.step-active {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #1a1a1a;
+}
+
+.step-inactive {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #999;
+}
+
+.step-number {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  background: #1a1a1a;
+  color: white;
+}
+
+.step-inactive .step-number {
+  background: #e0e0e0;
+  color: #666;
+}
+
+.line-active {
+  height: 2px;
+  width: 4rem;
+  background: #1a1a1a;
+}
+
+.line-inactive {
+  height: 2px;
+  width: 4rem;
+  background: #e0e0e0;
+}
