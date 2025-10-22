@@ -1,4 +1,3 @@
-// src/app/page.tsx
 'use client'
 import Link from 'next/link'
 
@@ -7,9 +6,9 @@ export default function Home() {
     <div className="min-h-screen">
       <section className="hero-modern">
         <div className="hero-content-modern">
-          <h1 className="hero-title">Tu estilo, nuestra pasión</h1>
+          <h1 className="hero-title">Tu estilo, nuestra pasion</h1>
           <p className="hero-subtitle">
-            Reservá tu turno online en segundos. Profesionales expertos te esperan.
+            Reserva tu turno online en segundos. Profesionales expertos te esperan.
           </p>
           <div className="hero-actions">
             <Link href="/reserva" className="btn-primary-modern">
@@ -20,7 +19,7 @@ export default function Home() {
           <div className="hero-stats">
             <div className="stat">
               <span className="stat-number">5.0</span>
-              <span className="stat-label">⭐ Rating</span>
+              <span className="stat-label">Rating</span>
             </div>
             <div className="stat">
               <span className="stat-number">500+</span>
@@ -38,27 +37,27 @@ export default function Home() {
         <div className="container-modern">
           <div className="text-center mb-12">
             <h2 className="section-title-modern">Nuestros Servicios</h2>
-            <p className="text-muted text-lg">Elegí el servicio que mejor se adapte a tu estilo</p>
+            <p className="text-muted text-lg">Elegi el servicio que mejor se adapte a tu estilo</p>
           </div>
 
           <div className="services-list-modern">
             <div className="service-item-modern">
               <div className="service-icon-modern">
-                <span className="text-4xl">✂️</span>
+                <span className="text-4xl">✂</span>
               </div>
               <div className="service-details-modern">
                 <h3 className="service-title-modern">Corte Personalizado</h3>
                 <p className="service-desc-modern">
                   Corte de cabello personalizado adaptado a tu estilo y preferencias. 
-                  Nuestros barberos expertos te asesorarán para lograr el look perfecto.
+                  Nuestros barberos expertos te asesoraran para lograr el look perfecto.
                 </p>
                 <div className="service-meta-modern">
-                  <span className="duration-badge">⏱ 45 min</span>
+                  <span className="duration-badge">45 min</span>
                   <span className="price-badge">$28.000</span>
                 </div>
               </div>
               <Link href="/reserva" className="btn-reserve-modern">
-                Reservar →
+                Reservar
               </Link>
             </div>
 
@@ -73,12 +72,12 @@ export default function Home() {
                   y productos premium para un acabado impecable.
                 </p>
                 <div className="service-meta-modern">
-                  <span className="duration-badge">⏱ 45 min</span>
+                  <span className="duration-badge">45 min</span>
                   <span className="price-badge">$32.000</span>
                 </div>
               </div>
               <Link href="/reserva" className="btn-reserve-modern">
-                Reservar →
+                Reservar
               </Link>
             </div>
 
@@ -93,12 +92,12 @@ export default function Home() {
                   El paquete definitivo para lucir impecable.
                 </p>
                 <div className="service-meta-modern">
-                  <span className="duration-badge">⏱ 1h 15min</span>
+                  <span className="duration-badge">1h 15min</span>
                   <span className="price-badge">$38.000</span>
                 </div>
               </div>
               <Link href="/reserva" className="btn-reserve-modern">
-                Reservar →
+                Reservar
               </Link>
             </div>
           </div>
@@ -109,11 +108,11 @@ export default function Home() {
         <div className="container-modern">
           <div className="horarios-card">
             <div className="text-center mb-8">
-              <h2 className="section-title-modern">Horarios de Atención</h2>
+              <h2 className="section-title-modern">Horarios de Atencion</h2>
             </div>
             <div className="horarios-grid">
               <div className="horario-item">
-                <span className="horario-dias">Martes a Sábado</span>
+                <span className="horario-dias">Martes a Sabado</span>
                 <div className="horario-horas">
                   <span className="hora-bloque">10:00 - 13:00 hs</span>
                   <span className="hora-bloque">16:00 - 20:00 hs</span>
