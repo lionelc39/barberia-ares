@@ -1,129 +1,33 @@
+// src/app/page.tsx
 'use client'
 import Link from 'next/link'
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
-      <section className="hero-modern">
-        <div className="hero-content-modern">
-          <h1 className="hero-title">Tu estilo, nuestra pasion</h1>
-          <p className="hero-subtitle">
-            Reserva tu turno online en segundos. Profesionales expertos te esperan.
-          </p>
-          <div className="hero-actions">
-            <Link href="/reserva" className="btn-primary-modern">
-              Reservar turno
-            </Link>
-          </div>
-          
-          <div className="hero-stats">
-            <div className="stat">
-              <span className="stat-number">5.0</span>
-              <span className="stat-label">Rating</span>
-            </div>
-            <div className="stat">
-              <span className="stat-number">500+</span>
-              <span className="stat-label">Clientes satisfechos</span>
-            </div>
-            <div className="stat">
-              <span className="stat-number">10+</span>
-              <span className="stat-label">Años de experiencia</span>
-            </div>
-          </div>
+    <div className="space-y-8">
+      <section className="grid md:grid-cols-3 gap-6">
+        <div className="card">
+          <h3 className="section-title">Reserva Online</h3>
+          <p className="text-muted mb-3">Sistema fácil e intuitivo. Elegí día y horario en segundos.</p>
+          <Link href="/reserva" className="btn-primary">Reservar Turno</Link>
+        </div>
+
+        <div className="card">
+          <h3 className="section-title">Servicios Premium</h3>
+          <p className="text-muted mb-3">Cortes clásicos y modernos, diseño de barba, afeitado tradicional.</p>
+        </div>
+
+        <div className="card">
+          <h3 className="section-title">Horarios Flexibles</h3>
+          <p className="text-muted mb-3">Martes a sábado de 10:00 a 13:00 y de 16:00 a 20:00. Elegí el horario que mejor te convenga.</p>
         </div>
       </section>
 
-      <section className="services-section-new">
-        <div className="container-modern">
-          <div className="text-center mb-12">
-            <h2 className="section-title-modern">Nuestros Servicios</h2>
-            <p className="text-muted text-lg">Elegi el servicio que mejor se adapte a tu estilo</p>
-          </div>
-
-          <div className="services-list-modern">
-            <div className="service-item-modern">
-              <div className="service-icon-modern">
-                <span className="text-4xl">X</span>
-              </div>
-              <div className="service-details-modern">
-                <h3 className="service-title-modern">Corte Personalizado</h3>
-                <p className="service-desc-modern">
-                  Corte de cabello personalizado adaptado a tu estilo y preferencias. 
-                  Nuestros barberos expertos te asesoraran para lograr el look perfecto.
-                </p>
-                <div className="service-meta-modern">
-                  <span className="duration-badge">45 min</span>
-                  <span className="price-badge">$28.000</span>
-                </div>
-              </div>
-              <Link href="/reserva" className="btn-reserve-modern">
-                Reservar
-              </Link>
-            </div>
-
-            <div className="service-item-modern">
-              <div className="service-icon-modern">
-                <span className="text-4xl">Y</span>
-              </div>
-              <div className="service-details-modern">
-                <h3 className="service-title-modern">Ritual de Barba</h3>
-                <p className="service-desc-modern">
-                  Servicio completo de barba con afeitado profesional, toallas calientes 
-                  y productos premium para un acabado impecable.
-                </p>
-                <div className="service-meta-modern">
-                  <span className="duration-badge">45 min</span>
-                  <span className="price-badge">$32.000</span>
-                </div>
-              </div>
-              <Link href="/reserva" className="btn-reserve-modern">
-                Reservar
-              </Link>
-            </div>
-
-            <div className="service-item-modern">
-              <div className="service-icon-modern">
-                <span className="text-4xl">Z</span>
-              </div>
-              <div className="service-details-modern">
-                <h3 className="service-title-modern">Corte + Ritual de Barba</h3>
-                <p className="service-desc-modern">
-                  Experiencia completa que combina corte personalizado y ritual de barba. 
-                  El paquete definitivo para lucir impecable.
-                </p>
-                <div className="service-meta-modern">
-                  <span className="duration-badge">1h 15min</span>
-                  <span className="price-badge">$38.000</span>
-                </div>
-              </div>
-              <Link href="/reserva" className="btn-reserve-modern">
-                Reservar
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="horarios-section">
-        <div className="container-modern">
-          <div className="horarios-card">
-            <div className="text-center mb-8">
-              <h2 className="section-title-modern">Horarios de Atencion</h2>
-            </div>
-            <div className="horarios-grid">
-              <div className="horario-item">
-                <span className="horario-dias">Martes a Sabado</span>
-                <div className="horario-horas">
-                  <span className="hora-bloque">10:00 - 13:00 hs</span>
-                  <span className="hora-bloque">16:00 - 20:00 hs</span>
-                </div>
-              </div>
-              <div className="horario-item cerrado">
-                <span className="horario-dias">Domingo y Lunes</span>
-                <span className="hora-bloque">Cerrado</span>
-              </div>
-            </div>
-          </div>
+      <section className="card">
+        <h2 className="section-title">¿Listo para tu nuevo look?</h2>
+        <p className="text-muted">Reservá tu turno ahora y experimentá el mejor servicio de barbería.</p>
+        <div className="mt-4">
+          <Link href="/reserva" className="btn-primary">Reservar Ahora</Link>
         </div>
       </section>
 
