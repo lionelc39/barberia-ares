@@ -5,7 +5,6 @@ import Link from 'next/link'
 export default function Home() {
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
       <section className="hero-modern">
         <div className="hero-content-modern">
           <h1 className="hero-title">Tu estilo, nuestra pasión</h1>
@@ -35,7 +34,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Services Section - REDISEÑADA */}
       <section className="services-section-new">
         <div className="container-modern">
           <div className="text-center mb-12">
@@ -44,7 +42,6 @@ export default function Home() {
           </div>
 
           <div className="services-list-modern">
-            {/* Servicio 1 */}
             <div className="service-item-modern">
               <div className="service-icon-modern">
                 <span className="text-4xl">✂️</span>
@@ -65,7 +62,6 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Servicio 2 */}
             <div className="service-item-modern">
               <div className="service-icon-modern">
                 <span className="text-4xl">🪒</span>
@@ -86,7 +82,6 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Servicio 3 */}
             <div className="service-item-modern">
               <div className="service-icon-modern">
                 <span className="text-4xl">💈</span>
@@ -110,7 +105,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Horarios Section */}
       <section className="horarios-section">
         <div className="container-modern">
           <div className="horarios-card">
@@ -134,7 +128,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* WhatsApp Button Flotante */}
       
         href="https://wa.me/5493489594230?text=Hola!%20Quiero%20reservar%20un%20turno"
         target="_blank"
