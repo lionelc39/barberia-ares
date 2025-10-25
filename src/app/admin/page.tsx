@@ -121,6 +121,32 @@ export default function AdminPanel() {
                 Ingresa tu contraseña para acceder
               </p>
             </div>
+            <form onSubmit={(e) => {
+              e.preventDefault()
+              if (password === ADMIN_PASSWORD) {
+                setIsAuthenticated(true)
+              } else {
+                alert('Contraseña incorrecta')
+                setPassword('')
+              }
+            }}>
+              <div className="input-group">
+                <label className="input-label">Contraseña</label>
+                <input
+                  type="password"
+                  placeholder="Ingresa tu contraseña"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input-fresha"
+                  autoFocus
+                  required
+                />
+              </div>
+              <button type="submit" className="btn-fresha btn-primary-fresha" style={{ width: '100%', padding: '1rem' }}>
+                Acceder al panel
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     )
@@ -129,13 +155,11 @@ export default function AdminPanel() {
   return (
     <div className="admin-container">
       <div className="container" style={{ maxWidth: '1400px' }}>
-        {/* Header */}
         <div className="admin-header">
           <h1 className="admin-title">Panel de Administración</h1>
           <p className="admin-subtitle">Gestiona los turnos de Barber Ares</p>
         </div>
 
-        {/* Filtros */}
         <div style={{ 
           background: 'white', 
           padding: '1.5rem', 
@@ -177,7 +201,6 @@ export default function AdminPanel() {
           </button>
         </div>
 
-        {/* Estadísticas */}
         <div className="stats-grid">
           <div className="stat-card">
             <p className="stat-label">Total de turnos</p>
@@ -203,7 +226,6 @@ export default function AdminPanel() {
           </div>
         </div>
 
-        {/* Lista de turnos */}
         <div>
           {loading ? (
             <div style={{ 
@@ -243,7 +265,6 @@ export default function AdminPanel() {
                     gap: '2rem',
                     alignItems: 'center'
                   }}>
-                    {/* Fecha y hora */}
                     <div style={{ minWidth: '140px' }}>
                       <div style={{ 
                         fontSize: '0.875rem', 
@@ -271,7 +292,6 @@ export default function AdminPanel() {
                       </div>
                     </div>
 
-                    {/* Información del servicio y cliente */}
                     <div>
                       <div style={{ 
                         fontSize: '1.125rem', 
@@ -313,7 +333,6 @@ export default function AdminPanel() {
                       </div>
                     </div>
 
-                    {/* Precio */}
                     <div style={{ textAlign: 'right', minWidth: '120px' }}>
                       <div style={{ 
                         fontSize: '1.75rem', 
@@ -324,7 +343,6 @@ export default function AdminPanel() {
                       </div>
                     </div>
 
-                    {/* Estado y acciones */}
                     <div style={{ minWidth: '200px' }}>
                       <select
                         value={turno.estado}
@@ -381,7 +399,6 @@ export default function AdminPanel() {
           )}
         </div>
 
-        {/* Responsive para móvil */}
         <style jsx>{`
           @media (max-width: 968px) {
             .appointment-card > div {
@@ -393,29 +410,4 @@ export default function AdminPanel() {
       </div>
     </div>
   )
-}    <form onSubmit={(e) => {
-              e.preventDefault()
-              if (password === ADMIN_PASSWORD) {
-                setIsAuthenticated(true)
-              } else {
-                alert('Contraseña incorrecta')
-                setPassword('')
-              }
-            }}>
-              <div className="input-group">
-                <label className="input-label">Contraseña</label>
-                <input
-                  type="password"
-                  placeholder="Ingresa tu contraseña"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input-fresha"
-                  autoFocus
-                  required
-                />
-              </div>
-              <button type="submit" className="btn-fresha btn-primary-fresha" style={{ width: '100%', padding: '1rem' }}>
-                Acceder al panel
-              </button>
-            </form>
-          </div>
+}
