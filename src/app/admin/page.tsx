@@ -121,7 +121,279 @@ export default function AdminPanel() {
                 Ingresa tu contraseña para acceder
               </p>
             </div>
-            <form onSubmit={(e) => {
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="admin-container">
+      <div className="container" style={{ maxWidth: '1400px' }}>
+        {/* Header */}
+        <div className="admin-header">
+          <h1 className="admin-title">Panel de Administración</h1>
+          <p className="admin-subtitle">Gestiona los turnos de Barber Ares</p>
+        </div>
+
+        {/* Filtros */}
+        <div style={{ 
+          background: 'white', 
+          padding: '1.5rem', 
+          borderRadius: '12px', 
+          border: '1px solid var(--border)',
+          marginBottom: '2rem',
+          display: 'flex',
+          gap: '1rem',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setFilter('hoy')}
+              className={`btn-fresha ${filter === 'hoy' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+            >
+              📅 Hoy
+            </button>
+            <button
+              onClick={() => setFilter('proximos')}
+              className={`btn-fresha ${filter === 'proximos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+            >
+              📆 Próximos
+            </button>
+            <button
+              onClick={() => setFilter('todos')}
+              className={`btn-fresha ${filter === 'todos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+            >
+              📋 Todos
+            </button>
+          </div>
+          
+          <button
+            onClick={cargarTurnos}
+            className="btn-fresha btn-secondary-fresha"
+          >
+            🔄 Actualizar
+          </button>
+        </div>
+
+        {/* Estadísticas */}
+        <div className="stats-grid">
+          <div className="stat-card">
+            <p className="stat-label">Total de turnos</p>
+            <p className="stat-value">{turnos.length}</p>
+          </div>
+          <div className="stat-card">
+            <p className="stat-label">Confirmados</p>
+            <p className="stat-value" style={{ color: '#16a34a' }}>
+              {turnos.filter(t => t.estado === 'confirmado').length}
+            </p>
+          </div>
+          <div className="stat-card">
+            <p className="stat-label">Pendientes</p>
+            <p className="stat-value" style={{ color: '#f59e0b' }}>
+              {turnos.filter(t => t.estado === 'reservado').length}
+            </p>
+          </div>
+          <div className="stat-card">
+            <p className="stat-label">Ingresos estimados</p>
+            <p className="stat-value" style={{ color: 'var(--primary)' }}>
+              ${turnos.reduce((sum, t) => sum + (t.precio || 0), 0).toLocaleString()}
+            </p>
+          </div>
+        </div>
+
+        {/* Lista de turnos */}
+        <div>
+          {loading ? (
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              padding: '4rem',
+              background: 'white',
+              borderRadius: '12px',
+              border: '1px solid var(--border)'
+            }}>
+              <div className="spinner" style={{ width: '40px', height: '40px', borderWidth: '3px' }}></div>
+            </div>
+          ) : turnos.length === 0 ? (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '4rem',
+              background: 'white',
+              borderRadius: '12px',
+              border: '1px solid var(--border)'
+            }}>
+              <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📅</div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-dark)', marginBottom: '0.5rem' }}>
+                No hay turnos para mostrar
+              </h3>
+              <p style={{ color: 'var(--text-muted)' }}>
+                Los turnos aparecerán aquí cuando los clientes realicen reservas
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {turnos.map((turno) => (
+                <div key={turno.id} className="appointment-card">
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'auto 1fr auto auto',
+                    gap: '2rem',
+                    alignItems: 'center'
+                  }}>
+                    {/* Fecha y hora */}
+                    <div style={{ minWidth: '140px' }}>
+                      <div style={{ 
+                        fontSize: '0.875rem', 
+                        fontWeight: '600', 
+                        color: 'var(--text-muted)',
+                        textTransform: 'uppercase',
+                        marginBottom: '0.25rem'
+                      }}>
+                        {format(parseISO(turno.fecha), "EEE, dd MMM", { locale: es })}
+                      </div>
+                      <div style={{ 
+                        fontSize: '2rem', 
+                        fontWeight: '700', 
+                        color: 'var(--primary)',
+                        lineHeight: '1'
+                      }}>
+                        {turno.hora}
+                      </div>
+                      <div style={{ 
+                        fontSize: '0.85rem', 
+                        color: 'var(--text-muted)',
+                        marginTop: '0.25rem'
+                      }}>
+                        {turno.duracion}
+                      </div>
+                    </div>
+
+                    {/* Información del servicio y cliente */}
+                    <div>
+                      <div style={{ 
+                        fontSize: '1.125rem', 
+                        fontWeight: '600', 
+                        color: 'var(--text-dark)',
+                        marginBottom: '0.5rem'
+                      }}>
+                        {turno.servicio}
+                      </div>
+                      <div style={{ 
+                        fontSize: '0.95rem', 
+                        color: 'var(--text-muted)',
+                        marginBottom: '0.75rem'
+                      }}>
+                        Cliente: <strong style={{ color: 'var(--text-dark)' }}>{turno.nombre_cliente}</strong>
+                      </div>
+                      <div style={{ 
+                        display: 'flex', 
+                        flexWrap: 'wrap', 
+                        gap: '0.5rem',
+                        fontSize: '0.875rem'
+                      }}>
+                        <span style={{ 
+                          background: 'var(--bg-light)', 
+                          padding: '0.375rem 0.75rem', 
+                          borderRadius: '6px',
+                          color: 'var(--text-muted)'
+                        }}>
+                          📧 {turno.email}
+                        </span>
+                        <span style={{ 
+                          background: 'var(--bg-light)', 
+                          padding: '0.375rem 0.75rem', 
+                          borderRadius: '6px',
+                          color: 'var(--text-muted)'
+                        }}>
+                          📱 {turno.whatsapp}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Precio */}
+                    <div style={{ textAlign: 'right', minWidth: '120px' }}>
+                      <div style={{ 
+                        fontSize: '1.75rem', 
+                        fontWeight: '700',
+                        color: 'var(--text-dark)'
+                      }}>
+                        ${turno.precio?.toLocaleString() || '0'}
+                      </div>
+                    </div>
+
+                    {/* Estado y acciones */}
+                    <div style={{ minWidth: '200px' }}>
+                      <select
+                        value={turno.estado}
+                        onChange={(e) => cambiarEstado(turno.id, e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          borderRadius: '8px',
+                          border: '1px solid var(--border)',
+                          fontSize: '0.95rem',
+                          fontWeight: '500',
+                          marginBottom: '0.5rem',
+                          cursor: 'pointer',
+                          backgroundColor: 
+                            turno.estado === 'confirmado' ? '#dcfce7' :
+                            turno.estado === 'completado' ? '#f0f9ff' :
+                            turno.estado === 'cancelado' ? '#fee2e2' :
+                            'white'
+                        }}
+                      >
+                        <option value="reservado">⏳ Reservado</option>
+                        <option value="confirmado">✅ Confirmado</option>
+                        <option value="completado">✔️ Completado</option>
+                        <option value="cancelado">❌ Cancelado</option>
+                      </select>
+                      <button
+                        onClick={() => eliminarTurno(turno.id)}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          borderRadius: '8px',
+                          border: '1px solid #fca5a5',
+                          background: 'white',
+                          color: '#dc2626',
+                          fontSize: '0.95rem',
+                          fontWeight: '500',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = '#fee2e2'
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = 'white'
+                        }}
+                      >
+                        🗑️ Eliminar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Responsive para móvil */}
+        <style jsx>{`
+          @media (max-width: 968px) {
+            .appointment-card > div {
+              grid-template-columns: 1fr !important;
+              gap: 1rem !important;
+            }
+          }
+        `}</style>
+      </div>
+    </div>
+  )
+}    <form onSubmit={(e) => {
               e.preventDefault()
               if (password === ADMIN_PASSWORD) {
                 setIsAuthenticated(true)
