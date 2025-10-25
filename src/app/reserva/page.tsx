@@ -11,21 +11,24 @@ const SERVICIOS = [
     nombre: 'Corte Personalizado',
     duracion: '45 min',
     precio: 28000,
-    descripcion: 'Corte de cabello personalizado'
+    descripcion: 'Corte de cabello personalizado adaptado a tu estilo y preferencias',
+    icono: '✂️'
   },
   {
     id: 'ritual-barba',
     nombre: 'Ritual de Barba',
     duracion: '45 min',
     precio: 32000,
-    descripcion: 'Afeitado profesional con toallas calientes'
+    descripcion: 'Servicio personalizado con afeitado, toalla caliente y productos premium',
+    icono: '🪒'
   },
   {
     id: 'corte-barba',
     nombre: 'Corte + Ritual de Barba',
     duracion: '1h 15min',
     precio: 38000,
-    descripcion: 'Experiencia completa de barberia'
+    descripcion: 'Experiencia completa de barbería para un look impecable',
+    icono: '💈'
   }
 ]
 
@@ -51,14 +54,14 @@ export default function Reserva() {
   const router = useRouter()
   
   const [paso, setPaso] = useState(1)
-  const [servicioSeleccionado, setServicioSeleccionado] = useState(null)
-  const [fechaSeleccionada, setFechaSeleccionada] = useState(null)
-  const [horaSeleccionada, setHoraSeleccionada] = useState(null)
+  const [servicioSeleccionado, setServicioSeleccionado] = useState<any>(null)
+  const [fechaSeleccionada, setFechaSeleccionada] = useState<Date | null>(null)
+  const [horaSeleccionada, setHoraSeleccionada] = useState<string | null>(null)
   const [contact, setContact] = useState({ nombre: '', email: '', whatsapp: '' })
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
-  const [horariosOcupados, setHorariosOcupados] = useState([])
+  const [horariosOcupados, setHorariosOcupados] = useState<string[]>([])
   const [mesActual, setMesActual] = useState(new Date())
 
   useEffect(() => {
@@ -89,7 +92,7 @@ export default function Reserva() {
     return dias
   }
 
-  const cambiarMes = (direccion) => {
+  const cambiarMes = (direccion: number) => {
     const nuevoMes = new Date(mesActual)
     nuevoMes.setMonth(mesActual.getMonth() + direccion)
     setMesActual(nuevoMes)
@@ -122,7 +125,7 @@ export default function Reserva() {
         .single()
 
       if (turnoExistente) {
-        setError('Ese horario ya fue reservado. Elegi otro.')
+        setError('Ese horario ya fue reservado. Elegí otro.')
         setLoading(false)
         return
       }
@@ -144,7 +147,7 @@ export default function Reserva() {
 
       if (errorTurno) throw errorTurno
 
-      setMessage('Turno confirmado!')
+      setMessage('¡Turno confirmado exitosamente!')
       
       setTimeout(() => {
         router.push('/')
@@ -159,224 +162,279 @@ export default function Reserva() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4">
-      <div className="mb-8">
-        <div className="flex items-center justify-center gap-4 mb-4">
-          <div className={paso >= 1 ? 'step-active' : 'step-inactive'}>
-            <div className="step-number">{paso >= 1 ? '✓' : '1'}</div>
-            <span className="hidden md:block">Servicio</span>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-light)', padding: '2rem 0' }}>
+      <div className="container" style={{ maxWidth: '1000px' }}>
+        {/* Progress Steps */}
+        <div className="steps-container">
+          <div className={paso >= 1 ? 'step active' : 'step inactive'}>
+            <div className="step-number">{paso > 1 ? '✓' : '1'}</div>
+            <span className="step-label">Servicio</span>
           </div>
-          <div className={paso >= 2 ? 'line-active' : 'line-inactive'}></div>
-          <div className={paso >= 2 ? 'step-active' : 'step-inactive'}>
-            <div className="step-number">{paso >= 2 ? '✓' : '2'}</div>
-            <span className="hidden md:block">Fecha y hora</span>
+          <div className="step-separator"></div>
+          <div className={paso >= 2 ? 'step active' : 'step inactive'}>
+            <div className="step-number">{paso > 2 ? '✓' : '2'}</div>
+            <span className="step-label">Fecha y hora</span>
           </div>
-          <div className={paso >= 3 ? 'line-active' : 'line-inactive'}></div>
-          <div className={paso >= 3 ? 'step-active' : 'step-inactive'}>
-            <div className="step-number">{paso >= 3 ? '✓' : '3'}</div>
-            <span className="hidden md:block">Confirmar</span>
-          </div>
-        </div>
-      </div>
-
-      {error && <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">{error}</div>}
-      {message && <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">{message}</div>}
-
-      {paso === 1 && (
-        <div className="space-y-6">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2">Elegi tu servicio</h2>
-            <p className="text-muted">Selecciona el servicio que deseas</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {SERVICIOS.map((servicio) => (
-              <div
-                key={servicio.id}
-                onClick={() => {
-                  setServicioSeleccionado(servicio)
-                  setPaso(2)
-                }}
-                className="card cursor-pointer hover:shadow-lg transition-all border-2 border-transparent hover:border-black"
-              >
-                <h3 className="text-xl font-bold mb-2">{servicio.nombre}</h3>
-                <p className="text-muted text-sm mb-3">{servicio.descripcion}</p>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm bg-blue-100 px-3 py-1 rounded">{servicio.duracion}</span>
-                  <span className="text-xl font-bold">${servicio.precio.toLocaleString()}</span>
-                </div>
-                <button className="btn-primary w-full">Seleccionar</button>
-              </div>
-            ))}
+          <div className="step-separator"></div>
+          <div className={paso >= 3 ? 'step active' : 'step inactive'}>
+            <div className="step-number">{paso > 3 ? '✓' : '3'}</div>
+            <span className="step-label">Confirmar</span>
           </div>
         </div>
-      )}
 
-      {paso === 2 && (
-        <div className="space-y-6">
-          <div className="text-center mb-6">
-            <h2 className="text-3xl font-bold mb-2">Elegi fecha y horario</h2>
-            <p className="text-muted">Servicio: {servicioSeleccionado?.nombre}</p>
-            <button onClick={() => setPaso(1)} className="text-sm text-blue-600 hover:underline mt-2">
-              Cambiar servicio
-            </button>
+        {/* Alerts */}
+        {error && (
+          <div className="alert-fresha alert-error">
+            <span>⚠️</span>
+            <span>{error}</span>
           </div>
+        )}
+        {message && (
+          <div className="alert-fresha alert-success">
+            <span>✅</span>
+            <span>{message}</span>
+          </div>
+        )}
 
-          <div className="card max-w-4xl mx-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">
-                {format(mesActual, "MMMM yyyy", { locale: es })}
-              </h3>
-              <div className="flex gap-2">
-                <button onClick={() => cambiarMes(-1)} className="px-4 py-2 border rounded hover:bg-gray-100">←</button>
-                <button onClick={() => cambiarMes(1)} className="px-4 py-2 border rounded hover:bg-gray-100">→</button>
-              </div>
+        {/* Paso 1: Selección de Servicio */}
+        {paso === 1 && (
+          <div>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-dark)', marginBottom: '0.5rem' }}>
+                Elegí tu servicio
+              </h2>
+              <p style={{ color: 'var(--text-muted)' }}>Selecciona el servicio que deseas reservar</p>
             </div>
 
-            <div className="grid grid-cols-7 gap-2 mb-4">
-              {['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'].map((dia) => (
-                <div key={dia} className="text-center font-semibold text-sm">{dia}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+              {SERVICIOS.map((servicio) => (
+                <div
+                  key={servicio.id}
+                  onClick={() => {
+                    setServicioSeleccionado(servicio)
+                    setPaso(2)
+                  }}
+                  className="service-card-fresha"
+                >
+                  <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>{servicio.icono}</div>
+                  <h3 className="service-title">{servicio.nombre}</h3>
+                  <p className="service-description">{servicio.descripcion}</p>
+                  <div className="service-meta">
+                    <span className="service-duration">⏱️ {servicio.duracion}</span>
+                    <span className="service-price">${servicio.precio.toLocaleString()}</span>
+                  </div>
+                  <button className="btn-fresha btn-primary-fresha" style={{ width: '100%', marginTop: '1rem' }}>
+                    Seleccionar
+                  </button>
+                </div>
               ))}
             </div>
+          </div>
+        )}
 
-            <div className="grid grid-cols-7 gap-2">
-              {getDiasDelMes().map((dia, index) => {
-                if (!dia) return <div key={index}></div>
-
-                const hoy = new Date()
-                hoy.setHours(0, 0, 0, 0)
-                const esPasado = dia < hoy
-                const esDomingo = dia.getDay() === 0
-                const esLunes = dia.getDay() === 1
-                const esSeleccionado = fechaSeleccionada?.toDateString() === dia.toDateString()
-                const deshabilitado = esPasado || esDomingo || esLunes
-
-                return (
-                  <button
-                    key={index}
-                    onClick={() => !deshabilitado && setFechaSeleccionada(dia)}
-                    disabled={deshabilitado}
-                    className={`aspect-square rounded-lg font-medium transition-all ${
-                      esSeleccionado ? 'bg-black text-white' : ''
-                    } ${deshabilitado ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-gray-200'}`}
-                  >
-                    {dia.getDate()}
-                  </button>
-                )
-              })}
-            </div>
-
-            {fechaSeleccionada && (
-              <div className="mt-6">
-                <h3 className="font-bold mb-3">
-                  Horarios para el {format(fechaSeleccionada, "d 'de' MMMM", { locale: es })}
-                </h3>
-                <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
-                  {generarHorarios(fechaSeleccionada).map((hora) => {
-                    const ocupado = horariosOcupados.includes(hora)
-                    return (
-                      <button
-                        key={hora}
-                        onClick={() => !ocupado && setHoraSeleccionada(hora)}
-                        disabled={ocupado}
-                        className={`py-3 rounded-lg font-medium transition-all ${
-                          horaSeleccionada === hora ? 'bg-black text-white' : ''
-                        } ${ocupado ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'border-2 hover:border-black'}`}
-                      >
-                        {hora}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            {fechaSeleccionada && horaSeleccionada && (
-              <button onClick={() => setPaso(3)} className="btn-primary w-full mt-6">
-                Continuar
+        {/* Paso 2: Selección de Fecha y Hora */}
+        {paso === 2 && (
+          <div>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-dark)', marginBottom: '0.5rem' }}>
+                Elegí fecha y horario
+              </h2>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                Servicio: <strong>{servicioSeleccionado?.nombre}</strong>
+              </p>
+              <button 
+                onClick={() => setPaso(1)} 
+                style={{ 
+                  color: 'var(--primary)', 
+                  background: 'none', 
+                  border: 'none', 
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  textDecoration: 'underline'
+                }}
+              >
+                Cambiar servicio
               </button>
-            )}
-          </div>
-        </div>
-      )}
+            </div>
 
-      {paso === 3 && (
-        <div className="space-y-6 max-w-2xl mx-auto">
-          <div className="text-center mb-6">
-            <h2 className="text-3xl font-bold mb-2">Confirma tus datos</h2>
-            <button onClick={() => setPaso(2)} className="text-sm text-blue-600 hover:underline">
-              Cambiar fecha/hora
-            </button>
-          </div>
+            <div className="calendar-container">
+              <div className="calendar-header">
+                <h3 className="calendar-month">
+                  {format(mesActual, "MMMM yyyy", { locale: es })}
+                </h3>
+                <div className="calendar-nav">
+                  <button onClick={() => cambiarMes(-1)}>←</button>
+                  <button onClick={() => cambiarMes(1)}>→</button>
+                </div>
+              </div>
 
-          <div className="card">
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h3 className="font-bold mb-3">Resumen de tu reserva</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Servicio:</span>
-                  <strong>{servicioSeleccionado?.nombre}</strong>
+              <div className="calendar-weekdays">
+                {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((dia) => (
+                  <div key={dia} className="calendar-weekday">{dia}</div>
+                ))}
+              </div>
+
+              <div className="calendar-days">
+                {getDiasDelMes().map((dia, index) => {
+                  if (!dia) return <div key={index}></div>
+
+                  const hoy = new Date()
+                  hoy.setHours(0, 0, 0, 0)
+                  const esPasado = dia < hoy
+                  const esDomingo = dia.getDay() === 0
+                  const esLunes = dia.getDay() === 1
+                  const esSeleccionado = fechaSeleccionada?.toDateString() === dia.toDateString()
+                  const deshabilitado = esPasado || esDomingo || esLunes
+
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => !deshabilitado && setFechaSeleccionada(dia)}
+                      disabled={deshabilitado}
+                      className={`calendar-day ${esSeleccionado ? 'selected' : ''} ${deshabilitado ? 'disabled' : ''}`}
+                    >
+                      {dia.getDate()}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {fechaSeleccionada && (
+                <div className="time-slots-container">
+                  <h3 className="time-slots-title">
+                    Horarios disponibles para el {format(fechaSeleccionada, "EEEE d 'de' MMMM", { locale: es })}
+                  </h3>
+                  <div className="time-slots-grid">
+                    {generarHorarios(fechaSeleccionada).map((hora) => {
+                      const ocupado = horariosOcupados.includes(hora)
+                      return (
+                        <button
+                          key={hora}
+                          onClick={() => !ocupado && setHoraSeleccionada(hora)}
+                          disabled={ocupado}
+                          className={`time-slot ${horaSeleccionada === hora ? 'selected' : ''} ${ocupado ? 'disabled' : ''}`}
+                        >
+                          {hora}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span>Fecha:</span>
-                  <strong>{fechaSeleccionada && format(fechaSeleccionada, "EEEE d 'de' MMMM", { locale: es })}</strong>
-                </div>
-                <div className="flex justify-between">
-                  <span>Hora:</span>
-                  <strong>{horaSeleccionada} hs</strong>
-                </div>
-                <div className="flex justify-between border-t pt-2 mt-2">
-                  <span>Total:</span>
-                  <strong className="text-lg">${servicioSeleccionado?.precio.toLocaleString()}</strong>
-                </div>
+              )}
+
+              {fechaSeleccionada && horaSeleccionada && (
+                <button 
+                  onClick={() => setPaso(3)} 
+                  className="btn-fresha btn-primary-fresha" 
+                  style={{ width: '100%', marginTop: '2rem', padding: '1rem' }}
+                >
+                  Continuar →
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Paso 3: Confirmación */}
+        {paso === 3 && (
+          <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-dark)', marginBottom: '0.5rem' }}>
+                Confirma tus datos
+              </h2>
+              <button 
+                onClick={() => setPaso(2)} 
+                style={{ 
+                  color: 'var(--primary)', 
+                  background: 'none', 
+                  border: 'none', 
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  textDecoration: 'underline'
+                }}
+              >
+                Cambiar fecha/hora
+              </button>
+            </div>
+
+            <div className="summary-card">
+              <h3 className="summary-title">Resumen de tu reserva</h3>
+              <div className="summary-row">
+                <span className="summary-label">Servicio:</span>
+                <span className="summary-value">{servicioSeleccionado?.nombre}</span>
+              </div>
+              <div className="summary-row">
+                <span className="summary-label">Fecha:</span>
+                <span className="summary-value">
+                  {fechaSeleccionada && format(fechaSeleccionada, "EEEE d 'de' MMMM", { locale: es })}
+                </span>
+              </div>
+              <div className="summary-row">
+                <span className="summary-label">Hora:</span>
+                <span className="summary-value">{horaSeleccionada} hs</span>
+              </div>
+              <div className="summary-row">
+                <span className="summary-label">Total:</span>
+                <span className="summary-total">${servicioSeleccionado?.precio.toLocaleString()}</span>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Nombre completo</label>
+            <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+              <div className="input-group">
+                <label className="input-label">Nombre completo *</label>
                 <input
                   type="text"
-                  placeholder="Ej: Juan Perez"
-                  className="w-full p-3 border-2 rounded-lg"
+                  placeholder="Ej: Juan Pérez"
+                  className="input-fresha"
                   value={contact.nombre}
                   onChange={(e) => setContact({ ...contact, nombre: e.target.value })}
+                  required
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Email</label>
+              <div className="input-group">
+                <label className="input-label">Email *</label>
                 <input
                   type="email"
                   placeholder="Ej: juan@ejemplo.com"
-                  className="w-full p-3 border-2 rounded-lg"
+                  className="input-fresha"
                   value={contact.email}
                   onChange={(e) => setContact({ ...contact, email: e.target.value })}
+                  required
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">WhatsApp</label>
+              <div className="input-group">
+                <label className="input-label">WhatsApp *</label>
                 <input
                   type="tel"
                   placeholder="Ej: 11 2345-6789"
-                  className="w-full p-3 border-2 rounded-lg"
+                  className="input-fresha"
                   value={contact.whatsapp}
                   onChange={(e) => setContact({ ...contact, whatsapp: e.target.value })}
+                  required
                 />
               </div>
 
               <button
                 onClick={handleReserve}
                 disabled={loading}
-                className="btn-primary w-full text-lg py-4"
+                className="btn-fresha btn-primary-fresha"
+                style={{ width: '100%', padding: '1rem', fontSize: '1rem' }}
               >
-                {loading ? 'Reservando...' : `Confirmar Reserva - ${fechaSeleccionada && format(fechaSeleccionada, "EEEE", { locale: es })} ${horaSeleccionada} hs`}
+                {loading ? (
+                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                    <div className="spinner"></div>
+                    Reservando...
+                  </span>
+                ) : (
+                  `Confirmar turno - ${fechaSeleccionada && format(fechaSeleccionada, "EEEE", { locale: es })} ${horaSeleccionada} hs`
+                )}
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
