@@ -1,6 +1,5 @@
 'use client'
 import Link from 'next/link'
-import Image from 'next/image'
 import { useState, useEffect } from 'react'
 
 export default function Header() {
@@ -17,41 +16,85 @@ export default function Header() {
   }, [])
 
   return (
-    <header className="header-modern">
-      <nav className="nav-modern">
-        <Link href="/" className="logo-modern">
-          <div className="logo-icon-modern">
-            <Image src="/logo.png" alt="BA" width={40} height={40} className="rounded-full" />
-          </div>
-          <span className="logo-text">Barberia Ares</span>
+    <header className="header-fresha">
+      <nav className="nav-fresha">
+        <Link href="/" className="logo-fresha">
+          <img src="/logo.png" alt="Barber Ares" />
+          <span className="logo-text-fresha">Barber Ares</span>
         </Link>
 
         {!isMobile && (
-          <div className="nav-actions-modern">
-            <Link href="/reserva" className="nav-link-modern">Servicios</Link>
-            <Link href="/reserva" className="btn-primary-modern">Reservar ahora</Link>
+          <div className="nav-actions-fresha">
+            <Link href="/#servicios" className="nav-link-fresha">Servicios</Link>
+            <Link href="/#horarios" className="nav-link-fresha">Horarios</Link>
+            <Link href="/#contacto" className="nav-link-fresha">Contacto</Link>
+            <Link href="/reserva" className="btn-fresha btn-primary-fresha">Reservar turno</Link>
           </div>
         )}
 
         {isMobile && (
           <button 
-            className="menu-mobile-modern"
+            className="btn-fresha btn-secondary-fresha"
             onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Menu"
+            style={{ padding: '0.5rem' }}
           >
-            <span></span>
-            <span></span>
-            <span></span>
+            ☰
           </button>
         )}
       </nav>
 
       {isMobile && menuOpen && (
-        <div className="mobile-menu-modern">
-          <Link href="/" onClick={() => setMenuOpen(false)}>Inicio</Link>
-          <Link href="/reserva" onClick={() => setMenuOpen(false)}>Servicios</Link>
-          <Link href="/reserva" onClick={() => setMenuOpen(false)}>Reservar turno</Link>
-          <a href="https://wa.me/5493489594230" target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)}>WhatsApp</a>
+        <div style={{ 
+          background: 'white', 
+          borderTop: '1px solid var(--border)',
+          padding: '1rem 1.5rem'
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <Link 
+              href="/" 
+              onClick={() => setMenuOpen(false)}
+              style={{ 
+                padding: '0.75rem', 
+                textDecoration: 'none',
+                color: 'var(--text-dark)',
+                borderRadius: '8px'
+              }}
+            >
+              Inicio
+            </Link>
+            <Link 
+              href="/#servicios" 
+              onClick={() => setMenuOpen(false)}
+              style={{ 
+                padding: '0.75rem', 
+                textDecoration: 'none',
+                color: 'var(--text-dark)',
+                borderRadius: '8px'
+              }}
+            >
+              Servicios
+            </Link>
+            <Link 
+              href="/#horarios" 
+              onClick={() => setMenuOpen(false)}
+              style={{ 
+                padding: '0.75rem', 
+                textDecoration: 'none',
+                color: 'var(--text-dark)',
+                borderRadius: '8px'
+              }}
+            >
+              Horarios
+            </Link>
+            <Link 
+              href="/reserva" 
+              onClick={() => setMenuOpen(false)}
+              className="btn-fresha btn-primary-fresha"
+              style={{ textAlign: 'center' }}
+            >
+              Reservar turno
+            </Link>
+          </div>
         </div>
       )}
     </header>
