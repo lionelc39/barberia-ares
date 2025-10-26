@@ -1,10 +1,14 @@
 'use client'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const router = useRouter()
 
   useEffect(() => {
     const checkMobile = () => {
@@ -12,8 +16,27 @@ export default function Header() {
     }
     checkMobile()
     window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
+    
+    // Verificar si hay usuario autenticado
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => {
+      window.removeEventListener('resize', checkMobile)
+      subscription.unsubscribe()
+    }
   }, [])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
+    router.push('/')
+  }
 
   return (
     <header className="header-fresha">
@@ -28,7 +51,25 @@ export default function Header() {
             <Link href="/#servicios" className="nav-link-fresha">Servicios</Link>
             <Link href="/#horarios" className="nav-link-fresha">Horarios</Link>
             <Link href="/#contacto" className="nav-link-fresha">Contacto</Link>
-            <Link href="/reserva" className="btn-fresha btn-primary-fresha">Reservar turno</Link>
+            
+            {user ? (
+              <>
+                <Link href="/reserva" className="btn-fresha btn-primary-fresha">Reservar turno</Link>
+                <button 
+                  onClick={handleLogout}
+                  className="btn-fresha btn-secondary-fresha"
+                  style={{ cursor: 'pointer' }}
+                >
+                  Cerrar sesión
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="nav-link-fresha">Iniciar sesión</Link>
+                <Link href="/register" className="btn-fresha btn-secondary-fresha">Registrarse</Link>
+                <Link href="/reserva" className="btn-fresha btn-primary-fresha">Reservar turno</Link>
+              </>
+            )}
           </div>
         )}
 
@@ -36,7 +77,7 @@ export default function Header() {
           <button 
             className="btn-fresha btn-secondary-fresha"
             onClick={() => setMenuOpen(!menuOpen)}
-            style={{ padding: '0.5rem' }}
+            style={{ padding: '0.5rem 1rem' }}
           >
             ☰
           </button>
@@ -86,14 +127,56 @@ export default function Header() {
             >
               Horarios
             </Link>
-            <Link 
-              href="/reserva" 
-              onClick={() => setMenuOpen(false)}
-              className="btn-fresha btn-primary-fresha"
-              style={{ textAlign: 'center' }}
-            >
-              Reservar turno
-            </Link>
+            
+            {user ? (
+              <>
+                <Link 
+                  href="/reserva" 
+                  onClick={() => setMenuOpen(false)}
+                  className="btn-fresha btn-primary-fresha"
+                  style={{ textAlign: 'center' }}
+                >
+                  Reservar turno
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogout()
+                    setMenuOpen(false)
+                  }}
+                  className="btn-fresha btn-secondary-fresha"
+                  style={{ textAlign: 'center' }}
+                >
+                  Cerrar sesión
+                </button>
+              </>
+            ) : (
+              <>
+                <Link 
+                  href="/login" 
+                  onClick={() => setMenuOpen(false)}
+                  className="btn-fresha btn-secondary-fresha"
+                  style={{ textAlign: 'center' }}
+                >
+                  Iniciar sesión
+                </Link>
+                <Link 
+                  href="/register" 
+                  onClick={() => setMenuOpen(false)}
+                  className="btn-fresha btn-secondary-fresha"
+                  style={{ textAlign: 'center' }}
+                >
+                  Registrarse
+                </Link>
+                <Link 
+                  href="/reserva" 
+                  onClick={() => setMenuOpen(false)}
+                  className="btn-fresha btn-primary-fresha"
+                  style={{ textAlign: 'center' }}
+                >
+                  Reservar turno
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
