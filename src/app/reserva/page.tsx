@@ -147,11 +147,41 @@ export default function Reserva() {
 
       if (errorTurno) throw errorTurno
 
-      setMessage('¡Turno confirmado exitosamente!')
+      // Enviar email de confirmación
+      try {
+        const emailResponse = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            to: contact.email,
+            tipo: 'confirmacion_turno',
+            datos: {
+              nombre: contact.nombre,
+              servicio: servicioSeleccionado.nombre,
+              fecha: format(fechaSeleccionada, "EEEE d 'de' MMMM 'de' yyyy", { locale: es }),
+              hora: horaSeleccionada,
+              whatsapp: contact.whatsapp,
+              precio: servicioSeleccionado.precio,
+              duracion: servicioSeleccionado.duracion
+            }
+          })
+        })
+
+        if (!emailResponse.ok) {
+          console.error('Error al enviar email de confirmación')
+        }
+      } catch (emailError) {
+        console.error('Error al enviar email:', emailError)
+        // No bloqueamos la reserva si falla el email
+      }
+
+      setMessage('¡Turno confirmado exitosamente! Te enviamos un email de confirmación.')
       
       setTimeout(() => {
         router.push('/')
-      }, 2000)
+      }, 3000)
 
     } catch (error) {
       console.error('Error:', error)
