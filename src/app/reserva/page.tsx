@@ -140,8 +140,30 @@ export default function Reserva() {
 
     // Validar campos solo si no hay usuario logueado
     if (!user) {
+      // Validar que todos los campos estén completos
       if (!contact.nombre.trim() || !contact.email.trim() || !contact.whatsapp.trim()) {
         setError('Por favor, completá todos los campos antes de confirmar tu turno.')
+        return
+      }
+
+      // Validar formato de email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(contact.email)) {
+        setError('Por favor, ingresá un email válido (ejemplo: tu@email.com)')
+        return
+      }
+
+      // Validar que el nombre tenga al menos 2 palabras (nombre y apellido)
+      const nombreParts = contact.nombre.trim().split(' ')
+      if (nombreParts.length < 2 || nombreParts.some(part => part.length < 2)) {
+        setError('Por favor, ingresá tu nombre completo (nombre y apellido)')
+        return
+      }
+
+      // Validar formato de WhatsApp (al menos 8 dígitos)
+      const whatsappNumeros = contact.whatsapp.replace(/\D/g, '')
+      if (whatsappNumeros.length < 8) {
+        setError('Por favor, ingresá un número de WhatsApp válido')
         return
       }
     }
@@ -508,41 +530,90 @@ export default function Reserva() {
             </div>
 
             <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
-              <div className="input-group">
-                <label className="input-label">Nombre completo *</label>
-                <input
-                  type="text"
-                  placeholder="Ej: Juan Pérez"
-                  className="input-fresha"
-                  value={contact.nombre}
-                  onChange={(e) => setContact({ ...contact, nombre: e.target.value })}
-                  required
-                />
-              </div>
+              {/* Mostrar mensaje si el usuario está logueado */}
+              {user && clienteData && (
+                <div style={{
+                  background: '#dcfce7',
+                  border: '1px solid #86efac',
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  marginBottom: '1.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem'
+                }}>
+                  <span style={{ fontSize: '1.5rem' }}>👤</span>
+                  <div>
+                    <p style={{ fontSize: '0.95rem', color: '#166534', fontWeight: '600', marginBottom: '0.25rem' }}>
+                      Hola {clienteData.nombre}!
+                    </p>
+                    <p style={{ fontSize: '0.85rem', color: '#166534' }}>
+                      Tus datos se completaron automáticamente
+                    </p>
+                  </div>
+                </div>
+              )}
 
-              <div className="input-group">
-                <label className="input-label">Email *</label>
-                <input
-                  type="email"
-                  placeholder="Ej: juan@ejemplo.com"
-                  className="input-fresha"
-                  value={contact.email}
-                  onChange={(e) => setContact({ ...contact, email: e.target.value })}
-                  required
-                />
-              </div>
+              {/* Formulario solo si NO hay usuario logueado */}
+              {!user && (
+                <>
+                  <div className="input-group">
+                    <label className="input-label">Nombre completo *</label>
+                    <input
+                      type="text"
+                      placeholder="Ej: Juan Pérez"
+                      className="input-fresha"
+                      value={contact.nombre}
+                      onChange={(e) => setContact({ ...contact, nombre: e.target.value })}
+                      required
+                    />
+                  </div>
 
-              <div className="input-group">
-                <label className="input-label">WhatsApp *</label>
-                <input
-                  type="tel"
-                  placeholder="Ej: 11 2345-6789"
-                  className="input-fresha"
-                  value={contact.whatsapp}
-                  onChange={(e) => setContact({ ...contact, whatsapp: e.target.value })}
-                  required
-                />
-              </div>
+                  <div className="input-group">
+                    <label className="input-label">Email *</label>
+                    <input
+                      type="email"
+                      placeholder="Ej: juan@ejemplo.com"
+                      className="input-fresha"
+                      value={contact.email}
+                      onChange={(e) => setContact({ ...contact, email: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="input-group">
+                    <label className="input-label">WhatsApp *</label>
+                    <input
+                      type="tel"
+                      placeholder="Ej: 11 2345-6789"
+                      className="input-fresha"
+                      value={contact.whatsapp}
+                      onChange={(e) => setContact({ ...contact, whatsapp: e.target.value })}
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Si hay usuario, mostrar datos de forma readonly */}
+              {user && clienteData && (
+                <div style={{ 
+                  background: 'var(--bg-light)', 
+                  padding: '1.5rem', 
+                  borderRadius: '8px',
+                  marginBottom: '1rem'
+                }}>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+                    <strong>Nombre:</strong> {contact.nombre}
+                  </p>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+                    <strong>Email:</strong> {contact.email}
+                  </p>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                    <strong>WhatsApp:</strong> {contact.whatsapp}
+                  </p>
+                </div>
+              )}
 
               <button
                 onClick={handleReserve}
