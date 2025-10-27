@@ -566,7 +566,13 @@ export default function Reserva() {
                       value={contact.nombre}
                       onChange={(e) => setContact({ ...contact, nombre: e.target.value })}
                       required
+                      minLength={5}
+                      pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$"
+                      title="Ingresá tu nombre y apellido completo"
                     />
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                      Ingresá tu nombre y apellido
+                    </p>
                   </div>
 
                   <div className="input-group">
@@ -578,7 +584,12 @@ export default function Reserva() {
                       value={contact.email}
                       onChange={(e) => setContact({ ...contact, email: e.target.value })}
                       required
+                      pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                      title="Ingresá un email válido (ejemplo: tu@email.com)"
                     />
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                      Debe ser un email válido (ej: tu@email.com)
+                    </p>
                   </div>
 
                   <div className="input-group">
@@ -590,7 +601,13 @@ export default function Reserva() {
                       value={contact.whatsapp}
                       onChange={(e) => setContact({ ...contact, whatsapp: e.target.value })}
                       required
+                      minLength={8}
+                      pattern="[\d\s\-+()]{8,}"
+                      title="Ingresá un número de WhatsApp válido (mínimo 8 dígitos)"
                     />
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                      Incluye código de área (mínimo 8 dígitos)
+                    </p>
                   </div>
                 </>
               )}
