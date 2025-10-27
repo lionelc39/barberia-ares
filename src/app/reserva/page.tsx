@@ -134,13 +134,16 @@ export default function Reserva() {
     setMessage('')
 
     if (!servicioSeleccionado || !fechaSeleccionada || !horaSeleccionada) {
-      setError('Por favor completa todos los pasos')
+      setError('Por favor completá todos los pasos')
       return
     }
 
-    if (!contact.nombre.trim() || !contact.email.trim() || !contact.whatsapp.trim()) {
-      setError('Por favor completa todos tus datos')
-      return
+    // Validar campos solo si no hay usuario logueado
+    if (!user) {
+      if (!contact.nombre.trim() || !contact.email.trim() || !contact.whatsapp.trim()) {
+        setError('Por favor, completá todos los campos antes de confirmar tu turno.')
+        return
+      }
     }
 
     setLoading(true)
@@ -208,7 +211,8 @@ export default function Reserva() {
         // No bloqueamos la reserva si falla el email
       }
 
-      setMessage('¡Turno confirmado exitosamente! Te enviamos un email de confirmación.')
+      setLoading(false)
+      setShowSuccessModal(true)
       
       setTimeout(() => {
         router.push('/')
@@ -217,7 +221,6 @@ export default function Reserva() {
     } catch (error) {
       console.error('Error:', error)
       setError('Hubo un error al reservar. Intenta nuevamente.')
-    } finally {
       setLoading(false)
     }
   }
@@ -225,6 +228,70 @@ export default function Reserva() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-light)', padding: '2rem 0' }}>
       <div className="container" style={{ maxWidth: '1000px' }}>
+        {/* Modal de Confirmación Exitosa */}
+        {showSuccessModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999
+          }}>
+            <div style={{
+              background: 'white',
+              padding: '3rem',
+              borderRadius: '16px',
+              maxWidth: '500px',
+              width: '90%',
+              textAlign: 'center',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+              animation: 'slideIn 0.3s ease-out'
+            }}>
+              <div style={{ fontSize: '5rem', marginBottom: '1rem' }}>✅</div>
+              <h2 style={{ 
+                fontSize: '2rem', 
+                fontWeight: '700', 
+                color: 'var(--primary)', 
+                marginBottom: '1rem' 
+              }}>
+                ¡Tu turno ha sido confirmado!
+              </h2>
+              <p style={{ 
+                fontSize: '1.125rem', 
+                color: 'var(--text-muted)',
+                marginBottom: '1.5rem',
+                lineHeight: '1.6'
+              }}>
+                Recibirás un email de confirmación con todos los detalles de tu reserva.
+              </p>
+              <div style={{
+                background: 'var(--bg-light)',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                marginBottom: '1.5rem'
+              }}>
+                <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                  <strong>Servicio:</strong> {servicioSeleccionado?.nombre}
+                </p>
+                <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                  <strong>Fecha:</strong> {fechaSeleccionada && format(fechaSeleccionada, "EEEE d 'de' MMMM", { locale: es })}
+                </p>
+                <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>
+                  <strong>Hora:</strong> {horaSeleccionada} hs
+                </p>
+              </div>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                Serás redirigido al inicio en unos segundos...
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Progress Steps */}
         <div className="steps-container">
           <div className={paso >= 1 ? 'step active' : 'step inactive'}>
