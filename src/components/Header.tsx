@@ -128,14 +128,6 @@ export default function Header() {
             
             {user ? (
               <>
-                <Link 
-                  href="/reserva" 
-                  onClick={() => setMenuOpen(false)}
-                  className="btn-fresha btn-primary-fresha"
-                  style={{ textAlign: 'center' }}
-                >
-                  Reservar turno
-                </Link>
                 <button
                   onClick={() => {
                     handleLogout()
@@ -164,14 +156,6 @@ export default function Header() {
                   style={{ textAlign: 'center' }}
                 >
                   Registrarse
-                </Link>
-                <Link 
-                  href="/reserva" 
-                  onClick={() => setMenuOpen(false)}
-                  className="btn-fresha btn-primary-fresha"
-                  style={{ textAlign: 'center' }}
-                >
-                  Reservar turno
                 </Link>
               </>
             )}
