@@ -54,7 +54,6 @@ export default function Header() {
             
             {user ? (
               <>
-                <Link href="/reserva" className="btn-fresha btn-primary-fresha">Reservar turno</Link>
                 <button 
                   onClick={handleLogout}
                   className="btn-fresha btn-secondary-fresha"
@@ -67,7 +66,6 @@ export default function Header() {
               <>
                 <Link href="/login" className="nav-link-fresha">Iniciar sesión</Link>
                 <Link href="/register" className="btn-fresha btn-secondary-fresha">Registrarse</Link>
-                <Link href="/reserva" className="btn-fresha btn-primary-fresha">Reservar turno</Link>
               </>
             )}
           </div>
