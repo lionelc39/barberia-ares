@@ -63,6 +63,37 @@ export default function Reserva() {
   const [error, setError] = useState('')
   const [horariosOcupados, setHorariosOcupados] = useState<string[]>([])
   const [mesActual, setMesActual] = useState(new Date())
+  const [user, setUser] = useState<any>(null)
+  const [clienteData, setClienteData] = useState<any>(null)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+
+  // Cargar datos del usuario autenticado
+  useEffect(() => {
+    const loadUserData = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        setUser(session.user)
+        
+        // Buscar datos del cliente en la tabla clientes
+        const { data: cliente } = await supabase
+          .from('clientes')
+          .select('*')
+          .eq('email', session.user.email)
+          .single()
+        
+        if (cliente) {
+          setClienteData(cliente)
+          setContact({
+            nombre: `${cliente.nombre} ${cliente.apellido}`,
+            email: cliente.email,
+            whatsapp: cliente.whatsapp
+          })
+        }
+      }
+    }
+    
+    loadUserData()
+  }, [])
 
   useEffect(() => {
     if (fechaSeleccionada) {
