@@ -240,9 +240,9 @@ export async function POST(request: Request) {
               <div class="important-box">
                 <h3>⚠️ Importante - Lee antes de tu turno:</h3>
                 <ul>
+                  <li><strong>Tu turno queda confirmado únicamente una vez abonada la seña correspondiente.</strong></li>
                   <li><strong>Llegá 5 minutos antes</strong> de tu horario programado.</li>
                   <li>Si necesitás <strong>cancelar o reprogramar</strong>, avisanos con al menos <strong>24 horas de anticipación</strong>.</li>
-                  <li>Podés traer tu propia toalla si lo preferís (también tenemos disponibles).</li>
                   <li>El pago se realiza en efectivo o transferencia al finalizar el servicio.</li>
                 </ul>
               </div>
