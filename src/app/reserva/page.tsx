@@ -29,24 +29,53 @@ const SERVICIOS = [
     precio: 38000,
     descripcion: 'Experiencia completa de barbería para un look impecable',
     icono: '💈'
+  },
+  {
+    id: 'corte-jubilados',
+    nombre: 'Corte Jubilados',
+    duracion: '45 min',
+    precio: 20000,
+    descripcion: 'Corte especial con tarifa reducida para jubilados',
+    icono: '👴'
   }
 ]
 
-const generarHorarios = (fecha: Date) => {
+const BARBEROS = [
+  {
+    id: 'fabrizio',
+    nombre: 'Fabrizio',
+    duracionTurno: 60, // minutos
+    icono: '👨‍🦰'
+  },
+  {
+    id: 'paul',
+    nombre: 'Paul',
+    duracionTurno: 30, // minutos
+    icono: '👨‍🦱'
+  }
+]
+
+const generarHorarios = (fecha: Date, barbero: any) => {
   const dia = fecha.getDay()
   if (dia === 0 || dia === 1) return []
   
   const horarios = []
+  const intervalo = barbero?.duracionTurno || 30
+  
+  // Horarios de mañana: 10:00 - 13:00
   for (let h = 10; h < 13; h++) {
-    for (let m of [0, 30]) {
+    for (let m = 0; m < 60; m += intervalo) {
       horarios.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`)
     }
   }
+  
+  // Horarios de tarde: 16:00 - 20:00
   for (let h = 16; h < 20; h++) {
-    for (let m of [0, 30]) {
+    for (let m = 0; m < 60; m += intervalo) {
       horarios.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`)
     }
   }
+  
   return horarios
 }
 
@@ -55,6 +84,7 @@ export default function Reserva() {
   
   const [paso, setPaso] = useState(1)
   const [servicioSeleccionado, setServicioSeleccionado] = useState<any>(null)
+  const [barberoSeleccionado, setBarberoSeleccionado] = useState<any>(null)
   const [fechaSeleccionada, setFechaSeleccionada] = useState<Date | null>(null)
   const [horaSeleccionada, setHoraSeleccionada] = useState<string | null>(null)
   const [contact, setContact] = useState({ nombre: '', email: '', whatsapp: '' })
@@ -102,9 +132,13 @@ export default function Reserva() {
   }, [fechaSeleccionada])
 
   const cargarHorariosOcupados = async () => {
-    if (!fechaSeleccionada) return
+    if (!fechaSeleccionada || !barberoSeleccionado) return
     const fecha = fechaSeleccionada.toISOString().split('T')[0]
-    const { data } = await supabase.from('turnos').select('hora').eq('fecha', fecha)
+    const { data } = await supabase
+      .from('turnos')
+      .select('hora')
+      .eq('fecha', fecha)
+      .eq('barbero_id', barberoSeleccionado.id)
     setHorariosOcupados((data || []).map((r) => r.hora))
   }
 
@@ -133,7 +167,7 @@ export default function Reserva() {
     setError('')
     setMessage('')
 
-    if (!servicioSeleccionado || !fechaSeleccionada || !horaSeleccionada) {
+    if (!servicioSeleccionado || !barberoSeleccionado || !fechaSeleccionada || !horaSeleccionada) {
       setError('Por favor completá todos los pasos')
       return
     }
@@ -178,10 +212,11 @@ export default function Reserva() {
         .select('id')
         .eq('fecha', fecha)
         .eq('hora', horaSeleccionada)
+        .eq('barbero_id', barberoSeleccionado.id)
         .single()
 
       if (turnoExistente) {
-        setError('Ese horario ya fue reservado. Elegí otro.')
+        setError('Ese horario ya fue reservado con ese barbero. Elegí otro.')
         setLoading(false)
         return
       }
@@ -198,6 +233,8 @@ export default function Reserva() {
           servicio_id: servicioSeleccionado.id,
           precio: servicioSeleccionado.precio,
           duracion: servicioSeleccionado.duracion,
+          barbero_id: barberoSeleccionado.id,
+          barbero_nombre: barberoSeleccionado.nombre,
           estado: 'reservado'
         }])
 
@@ -301,6 +338,9 @@ export default function Reserva() {
                   <strong>Servicio:</strong> {servicioSeleccionado?.nombre}
                 </p>
                 <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                  <strong>Barbero:</strong> {barberoSeleccionado?.nombre}
+                </p>
+                <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
                   <strong>Fecha:</strong> {fechaSeleccionada && format(fechaSeleccionada, "EEEE d 'de' MMMM", { locale: es })}
                 </p>
                 <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>
@@ -323,11 +363,16 @@ export default function Reserva() {
           <div className="step-separator"></div>
           <div className={paso >= 2 ? 'step active' : 'step inactive'}>
             <div className="step-number">{paso > 2 ? '✓' : '2'}</div>
-            <span className="step-label">Fecha y hora</span>
+            <span className="step-label">Barbero</span>
           </div>
           <div className="step-separator"></div>
           <div className={paso >= 3 ? 'step active' : 'step inactive'}>
             <div className="step-number">{paso > 3 ? '✓' : '3'}</div>
+            <span className="step-label">Fecha y hora</span>
+          </div>
+          <div className="step-separator"></div>
+          <div className={paso >= 4 ? 'step active' : 'step inactive'}>
+            <div className="step-number">{paso > 4 ? '✓' : '4'}</div>
             <span className="step-label">Confirmar</span>
           </div>
         </div>
@@ -382,12 +427,12 @@ export default function Reserva() {
           </div>
         )}
 
-        {/* Paso 2: Selección de Fecha y Hora */}
+        {/* Paso 2: Selección de Barbero */}
         {paso === 2 && (
           <div>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
               <h2 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-dark)', marginBottom: '0.5rem' }}>
-                Elegí fecha y horario
+                Elegí tu barbero
               </h2>
               <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
                 Servicio: <strong>{servicioSeleccionado?.nombre}</strong>
@@ -405,6 +450,81 @@ export default function Reserva() {
               >
                 Cambiar servicio
               </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', maxWidth: '800px', margin: '0 auto' }}>
+              {BARBEROS.map((barbero) => (
+                <div
+                  key={barbero.id}
+                  onClick={() => {
+                    setBarberoSeleccionado(barbero)
+                    setPaso(3)
+                  }}
+                  className="service-card-fresha"
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>{barbero.icono}</div>
+                  <h3 className="service-title">{barbero.nombre}</h3>
+                  <p className="service-description">
+                    Turnos cada {barbero.duracionTurno} minutos
+                  </p>
+                  <button className="btn-fresha btn-primary-fresha" style={{ width: '100%', marginTop: '1rem' }}>
+                    Seleccionar
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Paso 3: Selección de Fecha y Hora */}
+        {paso === 3 && (
+          <div>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-dark)', marginBottom: '0.5rem' }}>
+                Elegí fecha y horario
+              </h2>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                Servicio: <strong>{servicioSeleccionado?.nombre}</strong>
+              </p>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                Barbero: <strong>{barberoSeleccionado?.nombre}</strong> (Turnos de {barberoSeleccionado?.duracionTurno} min)
+              </p>
+              <button 
+                onClick={() => setPaso(2)} 
+                style={{ 
+                  color: 'var(--primary)', 
+                  background: 'none', 
+                  border: 'none', 
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  textDecoration: 'underline'
+                }}
+              >
+                Cambiar barbero
+              </button>
+            </div>
+
+            {/* Aviso de seña */}
+            <div style={{
+              background: '#fef3c7',
+              border: '2px solid #f59e0b',
+              borderRadius: '12px',
+              padding: '1.5rem',
+              marginBottom: '2rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}>
+              <span style={{ fontSize: '2rem' }}>⚠️</span>
+              <div>
+                <p style={{ fontSize: '1rem', fontWeight: '600', color: '#92400e', marginBottom: '0.5rem' }}>
+                  Seña obligatoria
+                </p>
+                <p style={{ fontSize: '0.9rem', color: '#78350f' }}>
+                  Tu turno queda confirmado únicamente una vez abonada la seña correspondiente.
+                </p>
+              </div>
             </div>
 
             <div className="calendar-container">
@@ -455,7 +575,7 @@ export default function Reserva() {
                     Horarios disponibles para el {format(fechaSeleccionada, "EEEE d 'de' MMMM", { locale: es })}
                   </h3>
                   <div className="time-slots-grid">
-                    {generarHorarios(fechaSeleccionada).map((hora) => {
+                    {generarHorarios(fechaSeleccionada, barberoSeleccionado).map((hora) => {
                       const ocupado = horariosOcupados.includes(hora)
                       return (
                         <button
@@ -474,7 +594,7 @@ export default function Reserva() {
 
               {fechaSeleccionada && horaSeleccionada && (
                 <button 
-                  onClick={() => setPaso(3)} 
+                  onClick={() => setPaso(4)} 
                   className="btn-fresha btn-primary-fresha" 
                   style={{ width: '100%', marginTop: '2rem', padding: '1rem' }}
                 >
@@ -485,15 +605,15 @@ export default function Reserva() {
           </div>
         )}
 
-        {/* Paso 3: Confirmación */}
-        {paso === 3 && (
+        {/* Paso 4: Confirmación */}
+        {paso === 4 && (
           <div style={{ maxWidth: '600px', margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
               <h2 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-dark)', marginBottom: '0.5rem' }}>
                 Confirma tus datos
               </h2>
               <button 
-                onClick={() => setPaso(2)} 
+                onClick={() => setPaso(3)} 
                 style={{ 
                   color: 'var(--primary)', 
                   background: 'none', 
@@ -507,11 +627,32 @@ export default function Reserva() {
               </button>
             </div>
 
+            {/* Aviso de seña en resumen */}
+            <div style={{
+              background: '#fef3c7',
+              border: '2px solid #f59e0b',
+              borderRadius: '12px',
+              padding: '1.25rem',
+              marginBottom: '1.5rem',
+              textAlign: 'center'
+            }}>
+              <p style={{ fontSize: '0.95rem', fontWeight: '600', color: '#92400e', marginBottom: '0.5rem' }}>
+                ⚠️ Seña obligatoria
+              </p>
+              <p style={{ fontSize: '0.85rem', color: '#78350f' }}>
+                Recordá que tu turno queda confirmado únicamente una vez abonada la seña correspondiente.
+              </p>
+            </div>
+
             <div className="summary-card">
               <h3 className="summary-title">Resumen de tu reserva</h3>
               <div className="summary-row">
                 <span className="summary-label">Servicio:</span>
                 <span className="summary-value">{servicioSeleccionado?.nombre}</span>
+              </div>
+              <div className="summary-row">
+                <span className="summary-label">Barbero:</span>
+                <span className="summary-value">{barberoSeleccionado?.nombre}</span>
               </div>
               <div className="summary-row">
                 <span className="summary-label">Fecha:</span>
