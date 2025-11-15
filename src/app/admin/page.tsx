@@ -15,17 +15,46 @@ type Turno = {
   precio: number
   duracion: string
   estado: string
+  barbero_id: string
+  barbero_nombre: string
+  monto_sena: number
+  sena_pagada: boolean
   created_at: string
+}
+
+type Barbero = {
+  id: string
+  nombre: string
+  email: string
 }
 
 export default function AdminPanel() {
   const [turnos, setTurnos] = useState<Turno[]>([])
+  const [barberos, setBarberos] = useState<Barbero[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'todos' | 'hoy' | 'proximos'>('hoy')
+  const [barberoFilter, setBarberoFilter] = useState<string>('todos')
   const [password, setPassword] = useState('')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   const ADMIN_PASSWORD = 'barberia2024'
+
+  // Cargar barberos
+  useEffect(() => {
+    if (isAuthenticated) {
+      cargarBarberos()
+    }
+  }, [isAuthenticated])
+
+  const cargarBarberos = async () => {
+    const { data } = await supabase
+      .from('barberos')
+      .select('*')
+      .eq('activo', true)
+      .order('nombre')
+    
+    setBarberos(data || [])
+  }
 
   const cargarTurnos = async () => {
     setLoading(true)
@@ -38,10 +67,16 @@ export default function AdminPanel() {
 
       const hoy = new Date().toISOString().split('T')[0]
       
+      // Filtro por fecha
       if (filter === 'hoy') {
         query = query.eq('fecha', hoy)
       } else if (filter === 'proximos') {
         query = query.gte('fecha', hoy)
+      }
+
+      // Filtro por barbero
+      if (barberoFilter !== 'todos') {
+        query = query.eq('barbero_id', barberoFilter)
       }
 
       const { data, error } = await query
@@ -76,6 +111,26 @@ export default function AdminPanel() {
     }
   }
 
+  const marcarSenaPagada = async (id: string, pagada: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('turnos')
+        .update({ sena_pagada: pagada })
+        .eq('id', id)
+
+      if (error) throw error
+      
+      setTurnos(turnos.map(t => 
+        t.id === id ? { ...t, sena_pagada: pagada } : t
+      ))
+      
+      alert(pagada ? 'Seña marcada como pagada' : 'Seña marcada como pendiente')
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Error al actualizar la seña')
+    }
+  }
+
   const eliminarTurno = async (id: string) => {
     if (!confirm('¿Estás seguro de eliminar este turno?')) return
     
@@ -99,7 +154,28 @@ export default function AdminPanel() {
     if (isAuthenticated) {
       cargarTurnos()
     }
-  }, [filter, isAuthenticated])
+  }, [filter, barberoFilter, isAuthenticated])
+
+  // Calcular ganancias por barbero
+  const calcularGanancias = () => {
+    const gananciaPorBarbero: Record<string, number> = {}
+    
+    turnos.forEach(turno => {
+      if (turno.estado !== 'cancelado') {
+        const barberoId = turno.barbero_id || 'sin-asignar'
+        const monto = turno.estado === 'completado' 
+          ? turno.precio 
+          : (turno.sena_pagada ? turno.monto_sena : 0)
+        
+        gananciaPorBarbero[barberoId] = (gananciaPorBarbero[barberoId] || 0) + monto
+      }
+    })
+    
+    return gananciaPorBarbero
+  }
+
+  const ganancias = calcularGanancias()
+  const gananciaTotal = Object.values(ganancias).reduce((sum, val) => sum + val, 0)
 
   if (!isAuthenticated) {
     return (
@@ -160,6 +236,7 @@ export default function AdminPanel() {
           <p className="admin-subtitle">Gestiona los turnos de Barber Ares</p>
         </div>
 
+        {/* Filtros */}
         <div style={{ 
           background: 'white', 
           padding: '1.5rem', 
@@ -191,6 +268,25 @@ export default function AdminPanel() {
             >
               📋 Todos
             </button>
+            
+            <div style={{ borderLeft: '1px solid var(--border)', height: '40px', margin: '0 0.5rem' }}></div>
+            
+            {/* Filtros por Barbero */}
+            <button
+              onClick={() => setBarberoFilter('todos')}
+              className={`btn-fresha ${barberoFilter === 'todos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+            >
+              👥 Todos
+            </button>
+            {barberos.map(barbero => (
+              <button
+                key={barbero.id}
+                onClick={() => setBarberoFilter(barbero.id)}
+                className={`btn-fresha ${barberoFilter === barbero.id ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+              >
+                {barbero.nombre}
+              </button>
+            ))}
           </div>
           
           <button
@@ -201,6 +297,7 @@ export default function AdminPanel() {
           </button>
         </div>
 
+        {/* Estadísticas */}
         <div className="stats-grid">
           <div className="stat-card">
             <p className="stat-label">Total de turnos</p>
@@ -219,13 +316,47 @@ export default function AdminPanel() {
             </p>
           </div>
           <div className="stat-card">
-            <p className="stat-label">Ingresos estimados</p>
+            <p className="stat-label">Ingresos totales</p>
             <p className="stat-value" style={{ color: 'var(--primary)' }}>
-              ${turnos.reduce((sum, t) => sum + (t.precio || 0), 0).toLocaleString()}
+              ${gananciaTotal.toLocaleString()}
             </p>
           </div>
         </div>
 
+        {/* Ganancias por Barbero */}
+        <div style={{
+          background: 'white',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          border: '1px solid var(--border)',
+          marginBottom: '2rem'
+        }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>
+            💰 Ganancias por Barbero
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+            {barberos.map(barbero => {
+              const ganancia = ganancias[barbero.id] || 0
+              return (
+                <div key={barbero.id} style={{
+                  background: 'var(--bg-light)',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                    {barbero.nombre}
+                  </p>
+                  <p style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--primary)' }}>
+                    ${ganancia.toLocaleString()}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Lista de Turnos */}
         <div>
           {loading ? (
             <div style={{ 
@@ -301,6 +432,23 @@ export default function AdminPanel() {
                       }}>
                         {turno.servicio}
                       </div>
+                      
+                      {/* NUEVO: Mostrar barbero */}
+                      <div style={{ 
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        background: '#e0f2fe',
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '6px',
+                        marginBottom: '0.5rem'
+                      }}>
+                        <span style={{ fontSize: '1rem' }}>💈</span>
+                        <span style={{ fontSize: '0.9rem', fontWeight: '600', color: '#0369a1' }}>
+                          Barbero: {turno.barbero_nombre}
+                        </span>
+                      </div>
+                      
                       <div style={{ 
                         fontSize: '0.95rem', 
                         color: 'var(--text-muted)',
@@ -308,6 +456,39 @@ export default function AdminPanel() {
                       }}>
                         Cliente: <strong style={{ color: 'var(--text-dark)' }}>{turno.nombre_cliente}</strong>
                       </div>
+                      
+                      {/* Seña */}
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        marginBottom: '0.5rem'
+                      }}>
+                        <span style={{ 
+                          fontSize: '0.85rem',
+                          color: turno.sena_pagada ? '#166534' : '#92400e',
+                          background: turno.sena_pagada ? '#dcfce7' : '#fef3c7',
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '4px',
+                          fontWeight: '600'
+                        }}>
+                          {turno.sena_pagada ? '✓ Seña pagada' : '⏳ Seña pendiente'} (${turno.monto_sena?.toLocaleString()})
+                        </span>
+                        <button
+                          onClick={() => marcarSenaPagada(turno.id, !turno.sena_pagada)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--primary)',
+                            fontSize: '0.85rem',
+                            cursor: 'pointer',
+                            textDecoration: 'underline'
+                          }}
+                        >
+                          {turno.sena_pagada ? 'Marcar pendiente' : 'Marcar pagada'}
+                        </button>
+                      </div>
+                      
                       <div style={{ 
                         display: 'flex', 
                         flexWrap: 'wrap', 
