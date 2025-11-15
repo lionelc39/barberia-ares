@@ -42,15 +42,15 @@ const SERVICIOS = [
 
 const BARBEROS = [
   {
-    id: 'fabrizio',
+    id: 'fab-12345',  // ⚠️ Debe coincidir con la tabla barberos
     nombre: 'Fabrizio',
-    duracionTurno: 60, // minutos
+    duracionTurno: 60,
     icono: '👨‍🦰'
   },
   {
-    id: 'paul',
+    id: 'paul-67890',  // ⚠️ Debe coincidir con la tabla barberos
     nombre: 'Paul',
-    duracionTurno: 30, // minutos
+    duracionTurno: 30,
     icono: '👨‍🦱'
   }
 ]
