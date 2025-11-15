@@ -29,12 +29,14 @@ export default function Login() {
       }
 
       // 2. Verificar si es barbero
-      const { data: barbero } = await supabase
+      const { data: barbero, error: barberoError } = await supabase
         .from('barberos')
         .select('*')
         .eq('email', form.email)
         .eq('activo', true)
-        .single()
+        .maybeSingle()
+      
+      console.log('Barbero encontrado:', barbero)
 
       setLoading(false)
 
