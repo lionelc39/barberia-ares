@@ -2,72 +2,130 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [isBarbero, setIsBarbero] = useState(false)
+  const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const pathname = usePathname()
 
+  // Verificar sesión cuando el componente se monta y cuando cambia la ruta
+  useEffect(() => {
+    console.log('🔄 Header: Verificando sesión...')
+    checkUser()
+  }, [pathname])
+
+  // Escuchar cambios de tamaño de pantalla
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
     }
     checkMobile()
     window.addEventListener('resize', checkMobile)
-    
-    // Verificar si hay usuario autenticado
-    const loadUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Función para verificar usuario
+  const checkUser = async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession()
       
-      if (session?.user) {
-        setUser(session.user)
-        
-        // Verificar si es barbero
-        const { data: barbero } = await supabase
-          .from('barberos')
-          .select('*')
-          .eq('email', session.user.email)
-          .eq('activo', true)
-          .maybeSingle()
-        
-        setIsBarbero(!!barbero)
+      if (error) {
+        console.error('❌ Error al obtener sesión:', error)
+        setUser(null)
+        setIsBarbero(false)
+        setLoading(false)
+        return
       }
+
+      if (!session?.user) {
+        console.log('👤 Header: No hay usuario logueado')
+        setUser(null)
+        setIsBarbero(false)
+        setLoading(false)
+        return
+      }
+
+      console.log('✅ Header: Usuario encontrado:', session.user.email)
+      setUser(session.user)
+
+      // Verificar si es barbero
+      const { data: barbero, error: barberoError } = await supabase
+        .from('barberos')
+        .select('*')
+        .eq('email', session.user.email)
+        .eq('activo', true)
+        .maybeSingle()
+
+      if (barberoError) {
+        console.error('⚠️ Error al verificar barbero:', barberoError)
+      }
+
+      const esBarbero = !!barbero
+      console.log('👨‍💼 Header: Es barbero?', esBarbero ? `Sí (${barbero.nombre})` : 'No')
+      setIsBarbero(esBarbero)
+      setLoading(false)
+
+    } catch (err) {
+      console.error('💥 Error en checkUser:', err)
+      setUser(null)
+      setIsBarbero(false)
+      setLoading(false)
     }
+  }
 
-    loadUser()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        setUser(session.user)
-        
-        const { data: barbero } = await supabase
-          .from('barberos')
-          .select('*')
-          .eq('email', session.user.email)
-          .eq('activo', true)
-          .single()
-        
-        setIsBarbero(!!barbero)
-      } else {
+  // Escuchar cambios de autenticación
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔔 Header: Cambio de auth:', event, session?.user?.email)
+      
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        await checkUser()
+      } else if (event === 'SIGNED_OUT') {
         setUser(null)
         setIsBarbero(false)
       }
     })
 
     return () => {
-      window.removeEventListener('resize', checkMobile)
       subscription.unsubscribe()
     }
   }, [])
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-    setIsBarbero(false)
-    router.push('/')
+    try {
+      console.log('🚪 Cerrando sesión...')
+      setLoading(true)
+      
+      const { error } = await supabase.auth.signOut()
+      
+      if (error) {
+        console.error('❌ Error al cerrar sesión:', error)
+        alert('Error al cerrar sesión: ' + error.message)
+      } else {
+        console.log('✅ Sesión cerrada correctamente')
+        setUser(null)
+        setIsBarbero(false)
+        setMenuOpen(false)
+        
+        // Redirigir al home
+        router.push('/')
+        
+        // Forzar recarga después de un momento
+        setTimeout(() => {
+          window.location.href = '/'
+        }, 100)
+      }
+    } catch (err) {
+      console.error('💥 Error inesperado al cerrar sesión:', err)
+      alert('Error inesperado al cerrar sesión')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -84,7 +142,11 @@ export default function Header() {
             <Link href="/#horarios" className="nav-link-fresha">Horarios</Link>
             <Link href="/#contacto" className="nav-link-fresha">Contacto</Link>
             
-            {user ? (
+            {loading ? (
+              <div style={{ padding: '0.5rem' }}>
+                <div className="spinner" style={{ width: '20px', height: '20px', borderWidth: '2px' }}></div>
+              </div>
+            ) : user ? (
               <>
                 {/* Botón "Mis Turnos" solo para barberos */}
                 {isBarbero && (
@@ -103,6 +165,7 @@ export default function Header() {
                 
                 <button 
                   onClick={handleLogout}
+                  disabled={loading}
                   className="btn-fresha btn-secondary-fresha"
                   style={{ cursor: 'pointer' }}
                 >
@@ -173,7 +236,11 @@ export default function Header() {
               Horarios
             </Link>
             
-            {user ? (
+            {loading ? (
+              <div style={{ padding: '1rem', textAlign: 'center' }}>
+                <div className="spinner" style={{ width: '20px', height: '20px', borderWidth: '2px', margin: '0 auto' }}></div>
+              </div>
+            ) : user ? (
               <>
                 {isBarbero && (
                   <Link 
@@ -191,6 +258,7 @@ export default function Header() {
                     handleLogout()
                     setMenuOpen(false)
                   }}
+                  disabled={loading}
                   className="btn-fresha btn-secondary-fresha"
                   style={{ textAlign: 'center' }}
                 >
