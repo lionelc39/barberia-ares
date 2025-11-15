@@ -17,6 +17,8 @@ type Turno = {
   duracion: string
   estado: string
   barbero_nombre: string
+  monto_sena: number
+  sena_pagada: boolean
   created_at: string
 }
 
@@ -42,12 +44,12 @@ export default function PanelBarbero() {
 
     setUser(session.user)
 
-    // Buscar información del barbero
+    // Buscar información del barbero (ACTUALIZADO: .maybeSingle())
     const { data: barbero } = await supabase
       .from('barberos')
       .select('*')
       .eq('email', session.user.email)
-      .single()
+      .maybeSingle()
 
     if (!barbero) {
       alert('No tienes permisos para acceder a este panel')
@@ -109,6 +111,26 @@ export default function PanelBarbero() {
     }
   }
 
+  const marcarSenaPagada = async (id: string, pagada: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('turnos')
+        .update({ sena_pagada: pagada })
+        .eq('id', id)
+
+      if (error) throw error
+      
+      setTurnos(turnos.map(t => 
+        t.id === id ? { ...t, sena_pagada: pagada } : t
+      ))
+      
+      alert(pagada ? 'Seña marcada como pagada' : 'Seña marcada como pendiente')
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Error al actualizar la seña')
+    }
+  }
+
   const cerrarSesion = async () => {
     await supabase.auth.signOut()
     router.push('/')
@@ -119,6 +141,20 @@ export default function PanelBarbero() {
       cargarTurnos()
     }
   }, [filter])
+
+  // Calcular ganancias
+  const calcularGanancias = () => {
+    return turnos
+      .filter(t => t.estado !== 'cancelado')
+      .reduce((total, turno) => {
+        const monto = turno.estado === 'completado' 
+          ? turno.precio 
+          : (turno.sena_pagada ? turno.monto_sena : 0)
+        return total + monto
+      }, 0)
+  }
+
+  const gananciaTotal = calcularGanancias()
 
   if (!barberoInfo) {
     return (
@@ -131,7 +167,7 @@ export default function PanelBarbero() {
   return (
     <div className="admin-container">
       <div className="container" style={{ maxWidth: '1400px' }}>
-        <div className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h1 className="admin-title">Panel de {barberoInfo.nombre}</h1>
             <p className="admin-subtitle">Gestiona tus turnos y ganancias</p>
@@ -205,7 +241,7 @@ export default function PanelBarbero() {
           <div className="stat-card">
             <p className="stat-label">Mis ingresos estimados</p>
             <p className="stat-value" style={{ color: 'var(--primary)' }}>
-              ${turnos.reduce((sum, t) => sum + (t.precio || 0), 0).toLocaleString()}
+              ${gananciaTotal.toLocaleString()}
             </p>
           </div>
         </div>
@@ -292,6 +328,39 @@ export default function PanelBarbero() {
                       }}>
                         Cliente: <strong style={{ color: 'var(--text-dark)' }}>{turno.nombre_cliente}</strong>
                       </div>
+                      
+                      {/* Seña */}
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        marginBottom: '0.5rem'
+                      }}>
+                        <span style={{ 
+                          fontSize: '0.85rem',
+                          color: turno.sena_pagada ? '#166534' : '#92400e',
+                          background: turno.sena_pagada ? '#dcfce7' : '#fef3c7',
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '4px',
+                          fontWeight: '600'
+                        }}>
+                          {turno.sena_pagada ? '✓ Seña pagada' : '⏳ Seña pendiente'} (${turno.monto_sena?.toLocaleString()})
+                        </span>
+                        <button
+                          onClick={() => marcarSenaPagada(turno.id, !turno.sena_pagada)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--primary)',
+                            fontSize: '0.85rem',
+                            cursor: 'pointer',
+                            textDecoration: 'underline'
+                          }}
+                        >
+                          {turno.sena_pagada ? 'Marcar pendiente' : 'Marcar pagada'}
+                        </button>
+                      </div>
+                      
                       <div style={{ 
                         display: 'flex', 
                         flexWrap: 'wrap', 
@@ -358,6 +427,15 @@ export default function PanelBarbero() {
             </div>
           )}
         </div>
+
+        <style jsx>{`
+          @media (max-width: 968px) {
+            .appointment-card > div {
+              grid-template-columns: 1fr !important;
+              gap: 1rem !important;
+            }
+          }
+        `}</style>
       </div>
     </div>
   )
