@@ -31,7 +31,7 @@ export default function Header() {
           .select('*')
           .eq('email', session.user.email)
           .eq('activo', true)
-          .single()
+          .maybeSingle()
         
         setIsBarbero(!!barbero)
       }
