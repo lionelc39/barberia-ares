@@ -15,19 +15,43 @@ export default function Login() {
     setError('')
     setLoading(true)
     
-    const { error } = await supabase.auth.signInWithPassword({ 
-      email: form.email, 
-      password: form.password 
-    })
-    
-    if (error) { 
-      setError(error.message)
+    try {
+      // 1. Hacer login
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ 
+        email: form.email, 
+        password: form.password 
+      })
+      
+      if (authError) { 
+        setError(authError.message)
+        setLoading(false)
+        return 
+      }
+
+      // 2. Verificar si es barbero
+      const { data: barbero } = await supabase
+        .from('barberos')
+        .select('*')
+        .eq('email', form.email)
+        .eq('activo', true)
+        .single()
+
       setLoading(false)
-      return 
+
+      // 3. Redirigir según rol
+      if (barbero) {
+        // Es barbero → ir a /barbero
+        router.push('/barbero')
+      } else {
+        // Es cliente → ir a /reserva
+        router.push('/reserva')
+      }
+
+    } catch (err) {
+      console.error('Error:', err)
+      setError('Ocurrió un error al iniciar sesión')
+      setLoading(false)
     }
-    
-    setLoading(false)
-    router.push('/reserva')
   }
 
   return (
@@ -104,6 +128,29 @@ export default function Login() {
               Regístrate aquí
             </Link>
           </p>
+
+          {/* Acceso Admin */}
+          <div style={{ 
+            marginTop: '2rem', 
+            paddingTop: '1.5rem', 
+            borderTop: '1px solid var(--border)',
+            textAlign: 'center'
+          }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+              ¿Eres administrador?
+            </p>
+            <Link 
+              href="/admin" 
+              style={{ 
+                color: 'var(--primary)', 
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                textDecoration: 'none'
+              }}
+            >
+              🔧 Acceder al panel admin
+            </Link>
+          </div>
         </div>
       </div>
     </div>
