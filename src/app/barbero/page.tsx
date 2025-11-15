@@ -35,30 +35,56 @@ export default function PanelBarbero() {
   }, [])
 
   const verificarAcceso = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    
-    if (!session) {
+    try {
+      console.log('🔐 Barbero: Verificando acceso...')
+      
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError) {
+        console.error('❌ Error al obtener sesión:', sessionError)
+        router.push('/login')
+        return
+      }
+      
+      if (!session) {
+        console.log('⚠️ No hay sesión activa')
+        router.push('/login')
+        return
+      }
+
+      console.log('✅ Sesión encontrada:', session.user.email)
+      setUser(session.user)
+
+      // Buscar información del barbero
+      const { data: barbero, error: barberoError } = await supabase
+        .from('barberos')
+        .select('*')
+        .eq('email', session.user.email)
+        .eq('activo', true)
+        .maybeSingle()
+
+      if (barberoError) {
+        console.error('❌ Error al buscar barbero:', barberoError)
+        alert('Error al verificar permisos')
+        router.push('/')
+        return
+      }
+
+      if (!barbero) {
+        console.log('⚠️ Usuario no es barbero')
+        alert('No tienes permisos para acceder a este panel')
+        router.push('/')
+        return
+      }
+
+      console.log('✅ Barbero encontrado:', barbero.nombre, 'ID:', barbero.id)
+      setBarberoInfo(barbero)
+      await cargarTurnos(barbero.id)
+      
+    } catch (err) {
+      console.error('💥 Error en verificarAcceso:', err)
       router.push('/login')
-      return
     }
-
-    setUser(session.user)
-
-    // Buscar información del barbero (ACTUALIZADO: .maybeSingle())
-    const { data: barbero } = await supabase
-      .from('barberos')
-      .select('*')
-      .eq('email', session.user.email)
-      .maybeSingle()
-
-    if (!barbero) {
-      alert('No tienes permisos para acceder a este panel')
-      router.push('/')
-      return
-    }
-
-    setBarberoInfo(barbero)
-    cargarTurnos(barbero.id)
   }
 
   const cargarTurnos = async (barberoId?: string) => {
