@@ -8,6 +8,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [isBarbero, setIsBarbero] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -18,12 +19,42 @@ export default function Header() {
     window.addEventListener('resize', checkMobile)
     
     // Verificar si hay usuario autenticado
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-    })
+    const loadUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (session?.user) {
+        setUser(session.user)
+        
+        // Verificar si es barbero
+        const { data: barbero } = await supabase
+          .from('barberos')
+          .select('*')
+          .eq('email', session.user.email)
+          .eq('activo', true)
+          .single()
+        
+        setIsBarbero(!!barbero)
+      }
+    }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+    loadUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        setUser(session.user)
+        
+        const { data: barbero } = await supabase
+          .from('barberos')
+          .select('*')
+          .eq('email', session.user.email)
+          .eq('activo', true)
+          .single()
+        
+        setIsBarbero(!!barbero)
+      } else {
+        setUser(null)
+        setIsBarbero(false)
+      }
     })
 
     return () => {
@@ -35,6 +66,7 @@ export default function Header() {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     setUser(null)
+    setIsBarbero(false)
     router.push('/')
   }
 
@@ -54,6 +86,21 @@ export default function Header() {
             
             {user ? (
               <>
+                {/* Botón "Mis Turnos" solo para barberos */}
+                {isBarbero && (
+                  <Link 
+                    href="/barbero" 
+                    className="btn-fresha btn-primary-fresha"
+                    style={{ 
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    📅 Mis Turnos
+                  </Link>
+                )}
+                
                 <button 
                   onClick={handleLogout}
                   className="btn-fresha btn-secondary-fresha"
@@ -128,6 +175,17 @@ export default function Header() {
             
             {user ? (
               <>
+                {isBarbero && (
+                  <Link 
+                    href="/barbero"
+                    onClick={() => setMenuOpen(false)}
+                    className="btn-fresha btn-primary-fresha"
+                    style={{ textAlign: 'center' }}
+                  >
+                    📅 Mis Turnos
+                  </Link>
+                )}
+                
                 <button
                   onClick={() => {
                     handleLogout()
