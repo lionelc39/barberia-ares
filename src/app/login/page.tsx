@@ -10,23 +10,30 @@ export default function Login() {
   const [error, setError] = useState('')
   const router = useRouter()
 
-  const handle = async (e: any) => {
+  const handle = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
     
     try {
+      console.log('🔐 Intentando login con:', form.email)
+      
       // 1. Hacer login
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ 
         email: form.email, 
         password: form.password 
       })
       
-      if (authError) { 
-        setError(authError.message)
+      if (authError) {
+        console.error('❌ Error de auth:', authError)
+        setError(authError.message === 'Invalid login credentials' 
+          ? 'Email o contraseña incorrectos' 
+          : authError.message)
         setLoading(false)
         return 
       }
+
+      console.log('✅ Login exitoso, usuario:', authData.user?.email)
 
       // 2. Verificar si es barbero
       const { data: barbero, error: barberoError } = await supabase
@@ -35,22 +42,27 @@ export default function Login() {
         .eq('email', form.email)
         .eq('activo', true)
         .maybeSingle()
-      
-      console.log('Barbero encontrado:', barbero)
 
-      setLoading(false)
+      console.log('👤 Resultado búsqueda barbero:', barbero ? `Es barbero: ${barbero.nombre}` : 'Es cliente')
 
-      // 3. Redirigir según rol
+      if (barberoError) {
+        console.error('⚠️ Error al buscar barbero:', barberoError)
+      }
+
+      // 3. Pequeña pausa para asegurar que la sesión se guardó
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      // 4. Redirigir según rol
       if (barbero) {
-        // Es barbero → ir a /barbero
+        console.log('➡️ Redirigiendo a /barbero')
         router.push('/barbero')
       } else {
-        // Es cliente → ir a /reserva
+        console.log('➡️ Redirigiendo a /reserva')
         router.push('/reserva')
       }
 
     } catch (err) {
-      console.error('Error:', err)
+      console.error('💥 Error inesperado:', err)
       setError('Ocurrió un error al iniciar sesión')
       setLoading(false)
     }
@@ -93,6 +105,7 @@ export default function Login() {
                 value={form.email} 
                 onChange={e => setForm({...form, email: e.target.value})} 
                 className="input-fresha"
+                disabled={loading}
               />
             </div>
 
@@ -105,10 +118,12 @@ export default function Login() {
                 value={form.password} 
                 onChange={e => setForm({...form, password: e.target.value})} 
                 className="input-fresha"
+                disabled={loading}
               />
             </div>
 
             <button 
+              type="submit"
               disabled={loading} 
               className="btn-fresha btn-primary-fresha" 
               style={{ width: '100%', padding: '1rem' }}
