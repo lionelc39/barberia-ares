@@ -8,6 +8,7 @@ import {
   contarPorEstado, 
   clasificarTurno, 
   calcularGananciaTurno,
+  calcularSena,
   getColorEstado,
   getIconoEstado,
   type Turno,
