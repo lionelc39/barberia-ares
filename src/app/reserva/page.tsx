@@ -163,126 +163,136 @@ export default function Reserva() {
     setMesActual(nuevoMes)
   }
 
-  const handleReserve = async () => {
-    setError('')
-    setMessage('')
+// Actualización para src/app/reserva/page.tsx
+// Solo necesitas actualizar la función handleReserve
 
-    if (!servicioSeleccionado || !barberoSeleccionado || !fechaSeleccionada || !horaSeleccionada) {
-      setError('Por favor completá todos los pasos')
+// Busca esta sección en tu archivo src/app/reserva/page.tsx:
+// const handleReserve = async () => {
+
+// Y reemplázala con esto:
+
+const handleReserve = async () => {
+  setError('')
+  setMessage('')
+
+  if (!servicioSeleccionado || !barberoSeleccionado || !fechaSeleccionada || !horaSeleccionada) {
+    setError('Por favor completá todos los pasos')
+    return
+  }
+
+  // Validar campos solo si no hay usuario logueado
+  if (!user) {
+    if (!contact.nombre.trim() || !contact.email.trim() || !contact.whatsapp.trim()) {
+      setError('Por favor, completá todos los campos antes de confirmar tu turno.')
       return
     }
 
-    // Validar campos solo si no hay usuario logueado
-    if (!user) {
-      // Validar que todos los campos estén completos
-      if (!contact.nombre.trim() || !contact.email.trim() || !contact.whatsapp.trim()) {
-        setError('Por favor, completá todos los campos antes de confirmar tu turno.')
-        return
-      }
-
-      // Validar formato de email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(contact.email)) {
-        setError('Por favor, ingresá un email válido (ejemplo: tu@email.com)')
-        return
-      }
-
-      // Validar que el nombre tenga al menos 2 palabras (nombre y apellido)
-      const nombreParts = contact.nombre.trim().split(' ')
-      if (nombreParts.length < 2 || nombreParts.some(part => part.length < 2)) {
-        setError('Por favor, ingresá tu nombre completo (nombre y apellido)')
-        return
-      }
-
-      // Validar formato de WhatsApp (al menos 8 dígitos)
-      const whatsappNumeros = contact.whatsapp.replace(/\D/g, '')
-      if (whatsappNumeros.length < 8) {
-        setError('Por favor, ingresá un número de WhatsApp válido')
-        return
-      }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(contact.email)) {
+      setError('Por favor, ingresá un email válido (ejemplo: tu@email.com)')
+      return
     }
 
-    setLoading(true)
+    const nombreParts = contact.nombre.trim().split(' ')
+    if (nombreParts.length < 2 || nombreParts.some(part => part.length < 2)) {
+      setError('Por favor, ingresá tu nombre completo (nombre y apellido)')
+      return
+    }
 
-    try {
-      const fecha = fechaSeleccionada.toISOString().split('T')[0]
-
-      const { data: turnoExistente } = await supabase
-        .from('turnos')
-        .select('id')
-        .eq('fecha', fecha)
-        .eq('hora', horaSeleccionada)
-        .eq('barbero_id', barberoSeleccionado.id)
-        .single()
-
-      if (turnoExistente) {
-        setError('Ese horario ya fue reservado con ese barbero. Elegí otro.')
-        setLoading(false)
-        return
-      }
-
-      const { error: errorTurno } = await supabase
-        .from('turnos')
-        .insert([{
-          nombre_cliente: contact.nombre,
-          email: contact.email,
-          whatsapp: contact.whatsapp,
-          fecha: fecha,
-          hora: horaSeleccionada,
-          servicio: servicioSeleccionado.nombre,
-          servicio_id: servicioSeleccionado.id,
-          precio: servicioSeleccionado.precio,
-          duracion: servicioSeleccionado.duracion,
-          barbero_id: barberoSeleccionado.id,
-          barbero_nombre: barberoSeleccionado.nombre,
-          estado: 'reservado'
-        }])
-
-      if (errorTurno) throw errorTurno
-
-      // Enviar email de confirmación
-      try {
-        const emailResponse = await fetch('/api/send-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            to: contact.email,
-            tipo: 'confirmacion_turno',
-            datos: {
-              nombre: contact.nombre,
-              servicio: servicioSeleccionado.nombre,
-              fecha: format(fechaSeleccionada, "EEEE d 'de' MMMM 'de' yyyy", { locale: es }),
-              hora: horaSeleccionada,
-              whatsapp: contact.whatsapp,
-              precio: servicioSeleccionado.precio,
-              duracion: servicioSeleccionado.duracion
-            }
-          })
-        })
-
-        if (!emailResponse.ok) {
-          console.error('Error al enviar email de confirmación')
-        }
-      } catch (emailError) {
-        console.error('Error al enviar email:', emailError)
-        // No bloqueamos la reserva si falla el email
-      }
-
-      setLoading(false)
-      setShowSuccessModal(true)
-      
-      setTimeout(() => {
-        router.push('/')
-      }, 3000)
-
-    } catch (error) {
-      console.error('Error:', error)
-      setError('Hubo un error al reservar. Intenta nuevamente.')
-      setLoading(false)
+    const whatsappNumeros = contact.whatsapp.replace(/\D/g, '')
+    if (whatsappNumeros.length < 8) {
+      setError('Por favor, ingresá un número de WhatsApp válido')
+      return
     }
   }
+
+  setLoading(true)
+
+  try {
+    const fecha = fechaSeleccionada.toISOString().split('T')[0]
+
+    const { data: turnoExistente } = await supabase
+      .from('turnos')
+      .select('id')
+      .eq('fecha', fecha)
+      .eq('hora', horaSeleccionada)
+      .eq('barbero_id', barberoSeleccionado.id)
+      .single()
+
+    if (turnoExistente) {
+      setError('Ese horario ya fue reservado con ese barbero. Elegí otro.')
+      setLoading(false)
+      return
+    }
+
+    // ✨ NUEVO: Calcular seña automáticamente (30%)
+    const montoSena = Math.round(servicioSeleccionado.precio * 0.30)
+
+    const { error: errorTurno } = await supabase
+      .from('turnos')
+      .insert([{
+        nombre_cliente: contact.nombre,
+        email: contact.email,
+        whatsapp: contact.whatsapp,
+        fecha: fecha,
+        hora: horaSeleccionada,
+        servicio: servicioSeleccionado.nombre,
+        servicio_id: servicioSeleccionado.id,
+        precio: servicioSeleccionado.precio,
+        duracion: servicioSeleccionado.duracion,
+        barbero_id: barberoSeleccionado.id,
+        barbero_nombre: barberoSeleccionado.nombre,
+        estado: 'reservado',
+        monto_sena: montoSena,  // ✨ Calcular 30%
+        sena_pagada: false       // ✨ Por defecto no pagada
+      }])
+
+    if (errorTurno) throw errorTurno
+
+    // Enviar email de confirmación con info de seña
+    try {
+      const emailResponse = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: contact.email,
+          tipo: 'confirmacion_turno',
+          datos: {
+            nombre: contact.nombre,
+            servicio: servicioSeleccionado.nombre,
+            barbero: barberoSeleccionado.nombre,
+            fecha: format(fechaSeleccionada, "EEEE d 'de' MMMM 'de' yyyy", { locale: es }),
+            hora: horaSeleccionada,
+            whatsapp: contact.whatsapp,
+            precio: servicioSeleccionado.precio,
+            duracion: servicioSeleccionado.duracion,
+            monto_sena: montoSena  // ✨ Enviar monto de seña
+          }
+        })
+      })
+
+      if (!emailResponse.ok) {
+        console.error('Error al enviar email de confirmación')
+      }
+    } catch (emailError) {
+      console.error('Error al enviar email:', emailError)
+    }
+
+    setLoading(false)
+    setShowSuccessModal(true)
+    
+    setTimeout(() => {
+      router.push('/')
+    }, 3000)
+
+  } catch (error) {
+    console.error('Error:', error)
+    setError('Hubo un error al reservar. Intenta nuevamente.')
+    setLoading(false)
+  }
+}
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-light)', padding: '2rem 0' }}>
