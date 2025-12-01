@@ -10,13 +10,21 @@ export default function Header() {
   const [user, setUser] = useState<any>(null)
   const [isBarbero, setIsBarbero] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false) // ✅ NUEVO
   const router = useRouter()
   const pathname = usePathname()
 
-  // Verificar sesión al montar y cuando cambia la ruta
+  // Verificar sesión al montar
   useEffect(() => {
     checkUser()
-  }, [pathname])
+  }, [])
+
+  // ✅ CAMBIO: Solo recargar cuando cambia pathname si ya terminó carga inicial
+  useEffect(() => {
+    if (initialLoadComplete && pathname) {
+      checkUser()
+    }
+  }, [pathname, initialLoadComplete])
 
   // Detectar si es móvil
   useEffect(() => {
@@ -31,7 +39,11 @@ export default function Header() {
   // Verificar usuario actual
   const checkUser = async () => {
     try {
-      setLoading(true)
+      // ✅ CAMBIO: Solo mostrar loading en la primera carga
+      if (!initialLoadComplete) {
+        setLoading(true)
+      }
+      
       const { data: { session }, error } = await supabase.auth.getSession()
       
       if (error) {
@@ -64,6 +76,7 @@ export default function Header() {
       setIsBarbero(false)
     } finally {
       setLoading(false)
+      setInitialLoadComplete(true) // ✅ NUEVO: Marcar que terminó carga inicial
     }
   }
 
@@ -89,6 +102,7 @@ export default function Header() {
       if (error) {
         console.error('❌ Error al cerrar sesión:', error)
         alert('Error al cerrar sesión: ' + error.message)
+        setLoading(false) // ✅ CAMBIO: Resetear loading si falla
         return
       }
 
@@ -96,12 +110,10 @@ export default function Header() {
       setIsBarbero(false)
       setMenuOpen(false)
       router.push('/')
-      window.location.reload()
     } catch (err) {
       console.error('💥 Error al cerrar sesión:', err)
       alert('Error inesperado al cerrar sesión')
-    } finally {
-      setLoading(false)
+      setLoading(false) // ✅ CAMBIO: Resetear loading si hay error
     }
   }
 
@@ -121,7 +133,8 @@ export default function Header() {
             <Link href="/#horarios" className="nav-link-fresha">Horarios</Link>
             <Link href="/#contacto" className="nav-link-fresha">Contacto</Link>
             
-            {loading ? (
+            {/* ✅ CAMBIO: Solo mostrar spinner durante carga inicial */}
+            {loading && !initialLoadComplete ? (
               <div style={{ padding: '0.5rem' }}>
                 <div className="spinner" style={{ width: '20px', height: '20px', borderWidth: '2px' }}></div>
               </div>
@@ -217,7 +230,8 @@ export default function Header() {
             </Link>
             
             <div style={{ borderTop: '1px solid var(--border)', marginTop: '0.5rem', paddingTop: '0.75rem' }}>
-              {loading ? (
+              {/* ✅ CAMBIO: Solo mostrar spinner durante carga inicial */}
+              {loading && !initialLoadComplete ? (
                 <div style={{ padding: '1rem', textAlign: 'center' }}>
                   <div className="spinner" style={{ width: '20px', height: '20px', borderWidth: '2px', margin: '0 auto' }}></div>
                 </div>
