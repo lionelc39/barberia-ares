@@ -42,13 +42,13 @@ const SERVICIOS = [
 
 const BARBEROS = [
   {
-    id: 'fab-12345',  // ⚠️ Debe coincidir con la tabla barberos
+    id: 'fab-12345',
     nombre: 'Fabrizio',
     duracionTurno: 60,
     icono: '👨‍🦰'
   },
   {
-    id: 'paul-67890',  // ⚠️ Debe coincidir con la tabla barberos
+    id: 'paul-67890',
     nombre: 'Paul',
     duracionTurno: 30,
     icono: '👨‍🦱'
@@ -100,18 +100,23 @@ export default function Reserva() {
   // Cargar datos del usuario autenticado
   useEffect(() => {
     const loadUserData = async () => {
+      console.log('🔵 Cargando datos del usuario...')
       const { data: { session } } = await supabase.auth.getSession()
       if (session?.user) {
+        console.log('✅ Usuario autenticado:', session.user.email)
         setUser(session.user)
         
         // Buscar datos del cliente en la tabla clientes
-        const { data: cliente } = await supabase
+        const { data: cliente, error: clienteError } = await supabase
           .from('clientes')
           .select('*')
           .eq('email', session.user.email)
           .single()
         
-        if (cliente) {
+        if (clienteError) {
+          console.warn('⚠️ Cliente no encontrado en DB:', clienteError)
+        } else if (cliente) {
+          console.log('✅ Datos del cliente cargados:', cliente.nombre, cliente.apellido)
           setClienteData(cliente)
           setContact({
             nombre: `${cliente.nombre} ${cliente.apellido}`,
@@ -119,6 +124,8 @@ export default function Reserva() {
             whatsapp: cliente.whatsapp
           })
         }
+      } else {
+        console.log('🔵 Usuario no autenticado')
       }
     }
     
@@ -133,13 +140,22 @@ export default function Reserva() {
 
   const cargarHorariosOcupados = async () => {
     if (!fechaSeleccionada || !barberoSeleccionado) return
+    
+    console.log('🔵 Cargando horarios ocupados...')
     const fecha = fechaSeleccionada.toISOString().split('T')[0]
-    const { data } = await supabase
+    
+    const { data, error } = await supabase
       .from('turnos')
       .select('hora')
       .eq('fecha', fecha)
       .eq('barbero_id', barberoSeleccionado.id)
-    setHorariosOcupados((data || []).map((r) => r.hora))
+    
+    if (error) {
+      console.error('❌ Error al cargar horarios ocupados:', error)
+    } else {
+      console.log('✅ Horarios ocupados cargados:', data?.length || 0)
+      setHorariosOcupados((data || []).map((r) => r.hora))
+    }
   }
 
   const getDiasDelMes = () => {
@@ -163,74 +179,104 @@ export default function Reserva() {
     setMesActual(nuevoMes)
   }
 
-// Actualización para src/app/reserva/page.tsx
-// Solo necesitas actualizar la función handleReserve
+  // ✅ FUNCIÓN MEJORADA CON DEBUG COMPLETO
+  const handleReserve = async () => {
+    console.log('🔵 ===== INICIO RESERVA =====')
+    console.log('🔵 Paso actual:', paso)
+    setError('')
+    setMessage('')
 
-// Busca esta sección en tu archivo src/app/reserva/page.tsx:
-// const handleReserve = async () => {
-
-// Y reemplázala con esto:
-
-const handleReserve = async () => {
-  setError('')
-  setMessage('')
-
-  if (!servicioSeleccionado || !barberoSeleccionado || !fechaSeleccionada || !horaSeleccionada) {
-    setError('Por favor completá todos los pasos')
-    return
-  }
-
-  // Validar campos solo si no hay usuario logueado
-  if (!user) {
-    if (!contact.nombre.trim() || !contact.email.trim() || !contact.whatsapp.trim()) {
-      setError('Por favor, completá todos los campos antes de confirmar tu turno.')
+    // 1. VALIDACIÓN DE PASOS
+    if (!servicioSeleccionado || !barberoSeleccionado || !fechaSeleccionada || !horaSeleccionada) {
+      console.error('❌ Faltan datos:', {
+        servicio: servicioSeleccionado?.nombre,
+        barbero: barberoSeleccionado?.nombre,
+        fecha: fechaSeleccionada,
+        hora: horaSeleccionada
+      })
+      setError('Por favor completá todos los pasos')
       return
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(contact.email)) {
-      setError('Por favor, ingresá un email válido (ejemplo: tu@email.com)')
-      return
+    console.log('✅ Todos los pasos completados')
+    console.log('🔵 Servicio:', servicioSeleccionado.nombre)
+    console.log('🔵 Barbero:', barberoSeleccionado.nombre)
+    console.log('🔵 Fecha:', fechaSeleccionada.toISOString().split('T')[0])
+    console.log('🔵 Hora:', horaSeleccionada)
+
+    // 2. VALIDAR CAMPOS DE CONTACTO (SOLO SI NO HAY USUARIO)
+    if (!user) {
+      console.log('🔵 Usuario no logueado, validando campos...')
+      
+      if (!contact.nombre.trim() || !contact.email.trim() || !contact.whatsapp.trim()) {
+        console.error('❌ Campos vacíos:', contact)
+        setError('Por favor, completá todos los campos antes de confirmar tu turno.')
+        return
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(contact.email)) {
+        console.error('❌ Email inválido:', contact.email)
+        setError('Por favor, ingresá un email válido (ejemplo: tu@email.com)')
+        return
+      }
+
+      const nombreParts = contact.nombre.trim().split(' ')
+      if (nombreParts.length < 2 || nombreParts.some(part => part.length < 2)) {
+        console.error('❌ Nombre incompleto:', contact.nombre)
+        setError('Por favor, ingresá tu nombre completo (nombre y apellido)')
+        return
+      }
+
+      const whatsappNumeros = contact.whatsapp.replace(/\D/g, '')
+      if (whatsappNumeros.length < 8) {
+        console.error('❌ WhatsApp inválido:', contact.whatsapp)
+        setError('Por favor, ingresá un número de WhatsApp válido')
+        return
+      }
+
+      console.log('✅ Validación de campos OK')
+    } else {
+      console.log('✅ Usuario logueado, usando datos de sesión')
     }
 
-    const nombreParts = contact.nombre.trim().split(' ')
-    if (nombreParts.length < 2 || nombreParts.some(part => part.length < 2)) {
-      setError('Por favor, ingresá tu nombre completo (nombre y apellido)')
-      return
-    }
+    setLoading(true)
+    console.log('🔵 Loading = true')
 
-    const whatsappNumeros = contact.whatsapp.replace(/\D/g, '')
-    if (whatsappNumeros.length < 8) {
-      setError('Por favor, ingresá un número de WhatsApp válido')
-      return
-    }
-  }
+    try {
+      const fecha = fechaSeleccionada.toISOString().split('T')[0]
+      console.log('🔵 Fecha formateada:', fecha)
 
-  setLoading(true)
+      // 3. VERIFICAR DISPONIBILIDAD
+      console.log('🔵 Verificando disponibilidad del horario...')
+      const { data: turnoExistente, error: errorCheck } = await supabase
+        .from('turnos')
+        .select('id')
+        .eq('fecha', fecha)
+        .eq('hora', horaSeleccionada)
+        .eq('barbero_id', barberoSeleccionado.id)
+        .maybeSingle()
 
-  try {
-    const fecha = fechaSeleccionada.toISOString().split('T')[0]
+      if (errorCheck) {
+        console.error('❌ Error al verificar disponibilidad:', errorCheck)
+        throw new Error(`Error al verificar disponibilidad: ${errorCheck.message}`)
+      }
 
-    const { data: turnoExistente } = await supabase
-      .from('turnos')
-      .select('id')
-      .eq('fecha', fecha)
-      .eq('hora', horaSeleccionada)
-      .eq('barbero_id', barberoSeleccionado.id)
-      .single()
+      if (turnoExistente) {
+        console.error('❌ Turno ya existe:', turnoExistente.id)
+        setError('Ese horario ya fue reservado con ese barbero. Elegí otro.')
+        setLoading(false)
+        return
+      }
 
-    if (turnoExistente) {
-      setError('Ese horario ya fue reservado con ese barbero. Elegí otro.')
-      setLoading(false)
-      return
-    }
+      console.log('✅ Horario disponible')
 
-    // ✨ NUEVO: Calcular seña automáticamente (30%)
-    const montoSena = Math.round(servicioSeleccionado.precio * 0.30)
+      // 4. CALCULAR SEÑA
+      const montoSena = Math.round(servicioSeleccionado.precio * 0.30)
+      console.log('🔵 Seña calculada (30%):', montoSena)
 
-    const { error: errorTurno } = await supabase
-      .from('turnos')
-      .insert([{
+      // 5. PREPARAR DATOS
+      const datosInsert = {
         nombre_cliente: contact.nombre,
         email: contact.email,
         whatsapp: contact.whatsapp,
@@ -243,19 +289,36 @@ const handleReserve = async () => {
         barbero_id: barberoSeleccionado.id,
         barbero_nombre: barberoSeleccionado.nombre,
         estado: 'reservado',
-        monto_sena: montoSena,  // ✨ Calcular 30%
-        sena_pagada: false       // ✨ Por defecto no pagada
-      }])
+        monto_sena: montoSena,
+        sena_pagada: false
+      }
 
-    if (errorTurno) throw errorTurno
+      console.log('🔵 Datos a insertar:', JSON.stringify(datosInsert, null, 2))
 
-    // Enviar email de confirmación con info de seña
-    try {
-      const emailResponse = await fetch('/api/send-email', {
+      // 6. INSERTAR TURNO EN LA BASE DE DATOS
+      console.log('🔵 Insertando turno en la base de datos...')
+      const { data: turnoCreado, error: errorTurno } = await supabase
+        .from('turnos')
+        .insert([datosInsert])
+        .select()
+        .single()
+
+      if (errorTurno) {
+        console.error('❌ Error al insertar turno:', errorTurno)
+        console.error('❌ Código de error:', errorTurno.code)
+        console.error('❌ Detalles:', errorTurno.details)
+        console.error('❌ Hint:', errorTurno.hint)
+        throw new Error(`Error al crear turno: ${errorTurno.message}`)
+      }
+
+      console.log('✅ Turno creado exitosamente:', turnoCreado)
+
+      // 7. ENVIAR EMAIL (SIN BLOQUEAR)
+      console.log('🔵 Enviando email de confirmación...')
+      
+      fetch('/api/send-email', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           to: contact.email,
           tipo: 'confirmacion_turno',
@@ -268,31 +331,55 @@ const handleReserve = async () => {
             whatsapp: contact.whatsapp,
             precio: servicioSeleccionado.precio,
             duracion: servicioSeleccionado.duracion,
-            monto_sena: montoSena  // ✨ Enviar monto de seña
+            monto_sena: montoSena
           }
         })
       })
+      .then(async (res) => {
+        if (res.ok) {
+          console.log('✅ Email enviado correctamente')
+        } else {
+          const errorData = await res.json()
+          console.warn('⚠️ Error al enviar email (no crítico):', errorData)
+        }
+      })
+      .catch(err => {
+        console.warn('⚠️ Error en envío de email (no crítico):', err)
+      })
 
-      if (!emailResponse.ok) {
-        console.error('Error al enviar email de confirmación')
+      // 8. MOSTRAR ÉXITO
+      console.log('✅ ===== RESERVA COMPLETADA =====')
+      setLoading(false)
+      setShowSuccessModal(true)
+      
+      setTimeout(() => {
+        console.log('🔵 Redirigiendo al inicio...')
+        router.push('/')
+      }, 3000)
+
+    } catch (error: any) {
+      console.error('💥 ===== ERROR CRÍTICO =====')
+      console.error('💥 Tipo:', error.constructor.name)
+      console.error('💥 Mensaje:', error.message)
+      console.error('💥 Stack:', error.stack)
+      
+      // Mensajes de error más específicos
+      let mensajeError = 'Hubo un error al reservar. Intenta nuevamente.'
+      
+      if (error.message.includes('fetch')) {
+        mensajeError = 'Error de conexión. Verificá tu internet e intentá nuevamente.'
+      } else if (error.message.includes('permission')) {
+        mensajeError = 'Error de permisos. Contactá al administrador.'
+      } else if (error.message.includes('foreign key')) {
+        mensajeError = 'Error de configuración. El barbero seleccionado no existe en el sistema.'
+      } else if (error.message.includes('relation')) {
+        mensajeError = 'Error de base de datos. La tabla de turnos no está configurada.'
       }
-    } catch (emailError) {
-      console.error('Error al enviar email:', emailError)
+      
+      setError(mensajeError)
+      setLoading(false)
     }
-
-    setLoading(false)
-    setShowSuccessModal(true)
-    
-    setTimeout(() => {
-      router.push('/')
-    }, 3000)
-
-  } catch (error) {
-    console.error('Error:', error)
-    setError('Hubo un error al reservar. Intenta nuevamente.')
-    setLoading(false)
   }
-}
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-light)', padding: '2rem 0' }}>
@@ -416,6 +503,7 @@ const handleReserve = async () => {
                 <div
                   key={servicio.id}
                   onClick={() => {
+                    console.log('🔵 Servicio seleccionado:', servicio.nombre)
                     setServicioSeleccionado(servicio)
                     setPaso(2)
                   }}
@@ -467,6 +555,7 @@ const handleReserve = async () => {
                 <div
                   key={barbero.id}
                   onClick={() => {
+                    console.log('🔵 Barbero seleccionado:', barbero.nombre)
                     setBarberoSeleccionado(barbero)
                     setPaso(3)
                   }}
@@ -569,7 +658,12 @@ const handleReserve = async () => {
                   return (
                     <button
                       key={index}
-                      onClick={() => !deshabilitado && setFechaSeleccionada(dia)}
+                      onClick={() => {
+                        if (!deshabilitado) {
+                          console.log('🔵 Fecha seleccionada:', dia.toISOString().split('T')[0])
+                          setFechaSeleccionada(dia)
+                        }
+                      }}
                       disabled={deshabilitado}
                       className={`calendar-day ${esSeleccionado ? 'selected' : ''} ${deshabilitado ? 'disabled' : ''}`}
                     >
@@ -590,7 +684,12 @@ const handleReserve = async () => {
                       return (
                         <button
                           key={hora}
-                          onClick={() => !ocupado && setHoraSeleccionada(hora)}
+                          onClick={() => {
+                            if (!ocupado) {
+                              console.log('🔵 Hora seleccionada:', hora)
+                              setHoraSeleccionada(hora)
+                            }
+                          }}
                           disabled={ocupado}
                           className={`time-slot ${horaSeleccionada === hora ? 'selected' : ''} ${ocupado ? 'disabled' : ''}`}
                         >
@@ -604,7 +703,10 @@ const handleReserve = async () => {
 
               {fechaSeleccionada && horaSeleccionada && (
                 <button 
-                  onClick={() => setPaso(4)} 
+                  onClick={() => {
+                    console.log('🔵 Avanzando al paso 4')
+                    setPaso(4)
+                  }}
                   className="btn-fresha btn-primary-fresha" 
                   style={{ width: '100%', marginTop: '2rem', padding: '1rem' }}
                 >
