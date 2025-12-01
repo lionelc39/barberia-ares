@@ -241,10 +241,15 @@ export default function AdminPanel() {
   return (
     <div className="admin-container">
       <div className="container" style={{ maxWidth: '1400px' }}>
-        <div className="admin-header">
-          <h1 className="admin-title">Panel de Administración</h1>
-          <p className="admin-subtitle">Gestiona los turnos de Barber Ares</p>
-        </div>
+     <div className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+  <div>
+    <h1 className="admin-title">Panel de Administración</h1>
+    <p className="admin-subtitle">Gestiona los turnos de Barber Ares</p>
+  </div>
+  <Link href="/estadisticas" className="btn-fresha btn-primary-fresha">
+    📊 Ver Estadísticas
+  </Link>
+</div>
 
         {/* Filtros mejorados con badges */}
         <div style={{ 
