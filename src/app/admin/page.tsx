@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
