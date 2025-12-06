@@ -83,11 +83,15 @@ export default function Header() {
   // Escuchar cambios de autenticación
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔵 Auth event:', event)
+      
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         await checkUser()
       } else if (event === 'SIGNED_OUT') {
+        console.log('🔵 Usuario cerró sesión, limpiando estados...')
         setUser(null)
         setIsBarbero(false)
+        setInitialLoadComplete(false)
       }
     })
 
@@ -96,24 +100,38 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
+      console.log('🔵 Cerrando sesión...')
       setLoading(true)
+      
       const { error } = await supabase.auth.signOut()
       
       if (error) {
         console.error('❌ Error al cerrar sesión:', error)
         alert('Error al cerrar sesión: ' + error.message)
-        setLoading(false) // ✅ CAMBIO: Resetear loading si falla
+        setLoading(false)
         return
       }
 
+      console.log('✅ Sesión cerrada exitosamente')
+      
+      // Limpiar estados
       setUser(null)
       setIsBarbero(false)
       setMenuOpen(false)
+      setInitialLoadComplete(false)
+      
+      // Redirigir al inicio
       router.push('/')
+      
+      // ✅ NUEVO: Forzar recarga completa de la página
+      setTimeout(() => {
+        window.location.href = '/'
+      }, 100)
+      
     } catch (err) {
       console.error('💥 Error al cerrar sesión:', err)
       alert('Error inesperado al cerrar sesión')
-      setLoading(false) // ✅ CAMBIO: Resetear loading si hay error
+      setLoading(false)
     }
   }
 
