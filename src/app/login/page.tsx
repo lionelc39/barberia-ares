@@ -1,14 +1,29 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showResetPassword, setShowResetPassword] = useState(false)
+  const [resetEmail, setResetEmail] = useState('')
+  const [resetLoading, setResetLoading] = useState(false)
+  const [resetSuccess, setResetSuccess] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Mostrar mensaje si la password fue actualizada
+  useEffect(() => {
+    if (searchParams.get('password_updated') === 'true') {
+      setError('')
+      setTimeout(() => {
+        alert('✅ Contraseña actualizada exitosamente. Ya puedes iniciar sesión.')
+      }, 100)
+    }
+  }, [searchParams])
 
   const handle = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -68,6 +83,41 @@ export default function Login() {
     }
   }
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setResetLoading(true)
+
+    try {
+      console.log('📧 Enviando email de recuperación a:', resetEmail)
+
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`
+      })
+
+      if (error) {
+        console.error('❌ Error al enviar email:', error)
+        throw error
+      }
+
+      console.log('✅ Email de recuperación enviado')
+      setResetSuccess(true)
+      
+      // Cerrar modal después de 3 segundos
+      setTimeout(() => {
+        setShowResetPassword(false)
+        setResetSuccess(false)
+        setResetEmail('')
+      }, 3000)
+
+    } catch (err: any) {
+      console.error('💥 Error:', err)
+      setError('Error al enviar email de recuperación: ' + (err.message || 'Intenta nuevamente'))
+    } finally {
+      setResetLoading(false)
+    }
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-light)', display: 'flex', alignItems: 'center', padding: '2rem 0' }}>
       <div className="container" style={{ maxWidth: '500px' }}>
@@ -122,6 +172,24 @@ export default function Login() {
               />
             </div>
 
+            <div style={{ textAlign: 'right', marginBottom: '1rem' }}>
+              <button
+                type="button"
+                onClick={() => setShowResetPassword(true)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--primary)',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  padding: 0
+                }}
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+            </div>
+
             <button 
               type="submit"
               disabled={loading} 
@@ -170,6 +238,103 @@ export default function Login() {
           </div>
         </div>
       </div>
+
+      {/* Modal Reset Password */}
+      {showResetPassword && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: 'white',
+            padding: '2rem',
+            borderRadius: '12px',
+            maxWidth: '500px',
+            width: '100%',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+          }}>
+            {resetSuccess ? (
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>✅</div>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem', color: 'var(--primary)' }}>
+                  ¡Email enviado!
+                </h3>
+                <p style={{ color: 'var(--text-muted)' }}>
+                  Revisa tu email para restablecer tu contraseña
+                </p>
+              </div>
+            ) : (
+              <>
+                <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🔑</div>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem', color: 'var(--text-dark)' }}>
+                    Recuperar contraseña
+                  </h3>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                    Te enviaremos un link para restablecer tu contraseña
+                  </p>
+                </div>
+
+                <form onSubmit={handleResetPassword}>
+                  <div className="input-group">
+                    <label className="input-label">Email</label>
+                    <input
+                      required
+                      type="email"
+                      placeholder="tu@email.com"
+                      value={resetEmail}
+                      onChange={e => setResetEmail(e.target.value)}
+                      className="input-fresha"
+                      disabled={resetLoading}
+                      autoFocus
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowResetPassword(false)
+                        setResetEmail('')
+                        setError('')
+                      }}
+                      className="btn-fresha btn-secondary-fresha"
+                      style={{ flex: 1 }}
+                      disabled={resetLoading}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn-fresha btn-primary-fresha"
+                      style={{ flex: 1 }}
+                      disabled={resetLoading}
+                    >
+                      {resetLoading ? (
+                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                          <div className="spinner"></div>
+                          Enviando...
+                        </span>
+                      ) : (
+                        'Enviar link'
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
