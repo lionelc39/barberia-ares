@@ -10,7 +10,6 @@ export default function Header() {
   const [user, setUser] = useState<any>(null)
   const [isBarbero, setIsBarbero] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [initialLoadComplete, setInitialLoadComplete] = useState(false) // ✅ NUEVO
   const router = useRouter()
   const pathname = usePathname()
 
@@ -19,12 +18,12 @@ export default function Header() {
     checkUser()
   }, [])
 
-  // ✅ CAMBIO: Solo recargar cuando cambia pathname si ya terminó carga inicial
+  // Recargar cuando cambia la ruta
   useEffect(() => {
-    if (initialLoadComplete && pathname) {
+    if (pathname) {
       checkUser()
     }
-  }, [pathname, initialLoadComplete])
+  }, [pathname])
 
   // Detectar si es móvil
   useEffect(() => {
@@ -39,23 +38,21 @@ export default function Header() {
   // Verificar usuario actual
   const checkUser = async () => {
     try {
-      // ✅ CAMBIO: Solo mostrar loading en la primera carga
-      if (!initialLoadComplete) {
-        setLoading(true)
-      }
-      
+      setLoading(true)
       const { data: { session }, error } = await supabase.auth.getSession()
       
       if (error) {
         console.error('❌ Error al obtener sesión:', error)
         setUser(null)
         setIsBarbero(false)
+        setLoading(false)
         return
       }
 
       if (!session?.user) {
         setUser(null)
         setIsBarbero(false)
+        setLoading(false)
         return
       }
 
@@ -70,13 +67,12 @@ export default function Header() {
         .maybeSingle()
 
       setIsBarbero(!!barbero)
+      setLoading(false)
     } catch (err) {
       console.error('💥 Error en checkUser:', err)
       setUser(null)
       setIsBarbero(false)
-    } finally {
       setLoading(false)
-      setInitialLoadComplete(true) // ✅ NUEVO: Marcar que terminó carga inicial
     }
   }
 
@@ -85,13 +81,12 @@ export default function Header() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('🔵 Auth event:', event)
       
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'PASSWORD_RECOVERY') {
         await checkUser()
       } else if (event === 'SIGNED_OUT') {
-        console.log('🔵 Usuario cerró sesión, limpiando estados...')
+        console.log('🔵 Usuario cerró sesión')
         setUser(null)
         setIsBarbero(false)
-        setInitialLoadComplete(false)
       }
     })
 
@@ -99,10 +94,16 @@ export default function Header() {
   }, [])
 
   const handleLogout = async () => {
+    if (loading) return // Prevenir múltiples clicks
+    
+    const confirmar = confirm('¿Estás seguro que querés cerrar sesión?')
+    if (!confirmar) return
+
     try {
       console.log('🔵 Cerrando sesión...')
       setLoading(true)
       
+      // Cerrar sesión en Supabase
       const { error } = await supabase.auth.signOut()
       
       if (error) {
@@ -118,15 +119,9 @@ export default function Header() {
       setUser(null)
       setIsBarbero(false)
       setMenuOpen(false)
-      setInitialLoadComplete(false)
       
-      // Redirigir al inicio
-      router.push('/')
-      
-      // ✅ NUEVO: Forzar recarga completa de la página
-      setTimeout(() => {
-        window.location.href = '/'
-      }, 100)
+      // Forzar recarga completa (limpia cookies, cache, etc.)
+      window.location.href = '/'
       
     } catch (err) {
       console.error('💥 Error al cerrar sesión:', err)
@@ -151,8 +146,7 @@ export default function Header() {
             <Link href="/#horarios" className="nav-link-fresha">Horarios</Link>
             <Link href="/#contacto" className="nav-link-fresha">Contacto</Link>
             
-            {/* ✅ CAMBIO: Solo mostrar spinner durante carga inicial */}
-            {loading && !initialLoadComplete ? (
+            {loading ? (
               <div style={{ padding: '0.5rem' }}>
                 <div className="spinner" style={{ width: '20px', height: '20px', borderWidth: '2px' }}></div>
               </div>
@@ -171,9 +165,12 @@ export default function Header() {
                   onClick={handleLogout}
                   disabled={loading}
                   className="btn-fresha btn-secondary-fresha"
-                  style={{ cursor: 'pointer' }}
+                  style={{ 
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.6 : 1
+                  }}
                 >
-                  Cerrar sesión
+                  {loading ? 'Cerrando...' : 'Cerrar sesión'}
                 </button>
               </>
             ) : (
@@ -248,8 +245,7 @@ export default function Header() {
             </Link>
             
             <div style={{ borderTop: '1px solid var(--border)', marginTop: '0.5rem', paddingTop: '0.75rem' }}>
-              {/* ✅ CAMBIO: Solo mostrar spinner durante carga inicial */}
-              {loading && !initialLoadComplete ? (
+              {loading ? (
                 <div style={{ padding: '1rem', textAlign: 'center' }}>
                   <div className="spinner" style={{ width: '20px', height: '20px', borderWidth: '2px', margin: '0 auto' }}></div>
                 </div>
@@ -278,9 +274,14 @@ export default function Header() {
                     }}
                     disabled={loading}
                     className="btn-fresha btn-secondary-fresha"
-                    style={{ textAlign: 'center', width: '100%' }}
+                    style={{ 
+                      textAlign: 'center', 
+                      width: '100%',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      opacity: loading ? 0.6 : 1
+                    }}
                   >
-                    🚪 Cerrar sesión
+                    {loading ? '🔄 Cerrando...' : '🚪 Cerrar sesión'}
                   </button>
                 </>
               ) : (
