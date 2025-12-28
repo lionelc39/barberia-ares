@@ -20,7 +20,7 @@ export default function ResetPassword() {
         const { data: { session }, error } = await supabase.auth.getSession()
         
         if (error) {
-          console.error('Error al verificar token:', error)
+          console.error('❌ Error al verificar token:', error)
           setError('Link de recuperación inválido o expirado. Solicita uno nuevo.')
           setValidatingToken(false)
           return
@@ -35,7 +35,7 @@ export default function ResetPassword() {
         console.log('✅ Token válido, usuario puede cambiar contraseña')
         setValidatingToken(false)
       } catch (err) {
-        console.error('Error:', err)
+        console.error('💥 Error:', err)
         setError('Ocurrió un error al validar el link')
         setValidatingToken(false)
       }
@@ -74,17 +74,35 @@ export default function ResetPassword() {
         throw updateError
       }
 
-      console.log('✅ Contraseña actualizada exitosamente')
+      console.log('✅ Contraseña actualizada exitosamente:', data)
       setSuccess(true)
+      setLoading(false)
+
+      // Cerrar sesión después de cambiar password (buena práctica)
+      console.log('🔐 Cerrando sesión automática...')
+      await supabase.auth.signOut()
 
       // Redirigir después de 2 segundos
       setTimeout(() => {
-        router.push('/login?password_updated=true')
+        console.log('➡️ Redirigiendo a login...')
+        window.location.href = '/login?password_updated=true'
       }, 2000)
 
     } catch (err: any) {
       console.error('💥 Error:', err)
-      setError(err.message || 'Error al actualizar la contraseña')
+      
+      // Mensajes de error más específicos
+      let mensajeError = 'Error al actualizar la contraseña'
+      
+      if (err.message?.includes('session')) {
+        mensajeError = 'Tu sesión expiró. Solicita un nuevo link de recuperación.'
+      } else if (err.message?.includes('weak')) {
+        mensajeError = 'La contraseña es muy débil. Intenta con una más segura.'
+      } else if (err.message) {
+        mensajeError = err.message
+      }
+      
+      setError(mensajeError)
       setLoading(false)
     }
   }
@@ -161,6 +179,41 @@ export default function ResetPassword() {
     )
   }
 
+  if (error && !validatingToken) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'var(--bg-light)', 
+        display: 'flex', 
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '2rem'
+      }}>
+        <div style={{
+          background: 'white',
+          padding: '3rem',
+          borderRadius: '12px',
+          border: '1px solid var(--border)',
+          boxShadow: 'var(--shadow-md)',
+          maxWidth: '500px',
+          width: '100%',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>⚠️</div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem', color: '#dc2626' }}>
+            Error de validación
+          </h2>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>
+            {error}
+          </p>
+          <a href="/login" className="btn-fresha btn-primary-fresha" style={{ display: 'inline-block', textDecoration: 'none' }}>
+            Volver a login
+          </a>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div style={{ 
       minHeight: '100vh', 
@@ -207,6 +260,7 @@ export default function ResetPassword() {
                 className="input-fresha"
                 disabled={loading}
                 minLength={6}
+                autoComplete="new-password"
               />
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
                 La contraseña debe tener al menos 6 caracteres
@@ -224,6 +278,7 @@ export default function ResetPassword() {
                 className="input-fresha"
                 disabled={loading}
                 minLength={6}
+                autoComplete="new-password"
               />
             </div>
 
