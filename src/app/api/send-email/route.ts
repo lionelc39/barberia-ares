@@ -281,6 +281,11 @@ export async function POST(request: Request) {
       `
     }
 
+    // ✅ CAMBIO CRÍTICO: Usar email verificado de Brevo
+    const senderEmail = process.env.NEXT_PUBLIC_OWNER_EMAIL || 'paulbarberiaares@gmail.com'
+    
+    console.log('📧 Enviando email desde:', senderEmail, 'hacia:', to)
+
     // Llamada a API de Brevo
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
@@ -292,7 +297,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         sender: {
           name: 'Barber Ares',
-          email: 'noreply@barberares.com'
+          email: senderEmail // ✅ Email verificado en Brevo
         },
         to: [{ email: to }],
         subject: subjectEmail,
@@ -303,13 +308,15 @@ export async function POST(request: Request) {
     const responseData = await response.json()
 
     if (!response.ok) {
-      console.error('Error de Brevo:', responseData)
+      console.error('❌ Error de Brevo:', responseData)
       return NextResponse.json(
         { error: 'Error al enviar el email', details: responseData },
         { status: 500 }
       )
     }
 
+    console.log('✅ Email enviado exitosamente:', responseData)
+    
     return NextResponse.json({ 
       success: true, 
       message: 'Email enviado correctamente',
@@ -317,11 +324,10 @@ export async function POST(request: Request) {
     })
 
   } catch (error) {
-    console.error('Error en la API:', error)
+    console.error('💥 Error en la API:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
     )
   }
 }
- 
