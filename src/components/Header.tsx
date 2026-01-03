@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter, usePathname } from 'next/navigation'
 
@@ -12,18 +12,10 @@ export default function Header() {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const pathname = usePathname()
-
-  // Verificar sesión al montar
-  useEffect(() => {
-    checkUser()
-  }, [])
-
-  // Recargar cuando cambia la ruta
-  useEffect(() => {
-    if (pathname) {
-      checkUser()
-    }
-  }, [pathname])
+  
+  // ✅ NUEVO: Prevenir múltiples llamadas simultáneas
+  const checkingUser = useRef(false)
+  const isInitialized = useRef(false)
 
   // Detectar si es móvil
   useEffect(() => {
@@ -35,27 +27,42 @@ export default function Header() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Verificar usuario actual
+  // ✅ MEJORADO: Verificar usuario con protección contra race conditions
   const checkUser = async () => {
+    // Prevenir llamadas simultáneas
+    if (checkingUser.current) {
+      console.log('⏸️ checkUser ya en ejecución, omitiendo...')
+      return
+    }
+
+    checkingUser.current = true
+    
     try {
       setLoading(true)
+      console.log('🔍 Verificando sesión...')
+      
+      // ✅ Dar tiempo a Supabase para procesar tokens de confirmación
+      if (!isInitialized.current) {
+        await new Promise(resolve => setTimeout(resolve, 500))
+      }
+      
       const { data: { session }, error } = await supabase.auth.getSession()
       
       if (error) {
         console.error('❌ Error al obtener sesión:', error)
         setUser(null)
         setIsBarbero(false)
-        setLoading(false)
         return
       }
 
       if (!session?.user) {
+        console.log('ℹ️ No hay sesión activa')
         setUser(null)
         setIsBarbero(false)
-        setLoading(false)
         return
       }
 
+      console.log('✅ Usuario autenticado:', session.user.email)
       setUser(session.user)
 
       // Verificar si es barbero
@@ -67,26 +74,42 @@ export default function Header() {
         .maybeSingle()
 
       setIsBarbero(!!barbero)
-      setLoading(false)
+      
+      if (barbero) {
+        console.log('💈 Usuario es barbero:', barbero.nombre)
+      }
+      
+      isInitialized.current = true
+      
     } catch (err) {
       console.error('💥 Error en checkUser:', err)
       setUser(null)
       setIsBarbero(false)
+    } finally {
       setLoading(false)
+      checkingUser.current = false
     }
   }
 
-  // Escuchar cambios de autenticación
+  // ✅ MEJORADO: Solo verificar al montar (eliminar dependencia de pathname)
+  useEffect(() => {
+    checkUser()
+  }, [])
+
+  // ✅ Escuchar cambios de autenticación (mantener)
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔵 Auth event:', event)
+      console.log('🔔 Auth event:', event)
       
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'PASSWORD_RECOVERY') {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        // Pequeña pausa para asegurar persistencia
+        await new Promise(resolve => setTimeout(resolve, 300))
         await checkUser()
       } else if (event === 'SIGNED_OUT') {
-        console.log('🔵 Usuario cerró sesión')
+        console.log('🚪 Usuario cerró sesión')
         setUser(null)
         setIsBarbero(false)
+        isInitialized.current = false
       }
     })
 
@@ -94,38 +117,36 @@ export default function Header() {
   }, [])
 
   const handleLogout = async () => {
-    if (loading) return // Prevenir múltiples clicks
+    if (loading || checkingUser.current) return
     
     const confirmar = confirm('¿Estás seguro que querés cerrar sesión?')
     if (!confirmar) return
 
     try {
-      console.log('🔵 Cerrando sesión...')
+      console.log('🔐 Cerrando sesión...')
       setLoading(true)
       
-      // Cerrar sesión en Supabase
       const { error } = await supabase.auth.signOut()
       
       if (error) {
         console.error('❌ Error al cerrar sesión:', error)
         alert('Error al cerrar sesión: ' + error.message)
-        setLoading(false)
         return
       }
 
-      console.log('✅ Sesión cerrada exitosamente')
-      
-      // Limpiar estados
+      console.log('✅ Sesión cerrada')
       setUser(null)
       setIsBarbero(false)
       setMenuOpen(false)
+      isInitialized.current = false
       
-      // Forzar recarga completa (limpia cookies, cache, etc.)
+      // Forzar recarga
       window.location.href = '/'
       
     } catch (err) {
       console.error('💥 Error al cerrar sesión:', err)
       alert('Error inesperado al cerrar sesión')
+    } finally {
       setLoading(false)
     }
   }
@@ -133,13 +154,11 @@ export default function Header() {
   return (
     <header className="header-fresha">
       <nav className="nav-fresha">
-        {/* Logo */}
         <Link href="/" className="logo-fresha">
           <img src="/logo.png" alt="Barber Ares" />
           <span className="logo-text-fresha">Barber Ares</span>
         </Link>
 
-        {/* Desktop Menu */}
         {!isMobile && (
           <div className="nav-actions-fresha">
             <Link href="/#servicios" className="nav-link-fresha">Servicios</Link>
@@ -170,7 +189,7 @@ export default function Header() {
                     opacity: loading ? 0.6 : 1
                   }}
                 >
-                  {loading ? 'Cerrando...' : 'Cerrar sesión'}
+                  Cerrar sesión
                 </button>
               </>
             ) : (
@@ -186,7 +205,6 @@ export default function Header() {
           </div>
         )}
 
-        {/* Mobile Menu Button */}
         {isMobile && (
           <button 
             className="btn-fresha btn-secondary-fresha"
@@ -198,7 +216,7 @@ export default function Header() {
         )}
       </nav>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Menu */}
       {isMobile && menuOpen && (
         <div style={{ 
           background: 'white', 
@@ -206,48 +224,17 @@ export default function Header() {
           padding: '1rem 1.5rem'
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <Link 
-              href="/" 
-              onClick={() => setMenuOpen(false)}
-              style={{ 
-                padding: '0.75rem', 
-                textDecoration: 'none',
-                color: 'var(--text-dark)',
-                borderRadius: '8px',
-                transition: 'background 0.2s'
-              }}
-            >
+            <Link href="/" onClick={() => setMenuOpen(false)} className="nav-link-fresha">
               🏠 Inicio
             </Link>
-            <Link 
-              href="/#servicios" 
-              onClick={() => setMenuOpen(false)}
-              style={{ 
-                padding: '0.75rem', 
-                textDecoration: 'none',
-                color: 'var(--text-dark)',
-                borderRadius: '8px'
-              }}
-            >
+            <Link href="/#servicios" onClick={() => setMenuOpen(false)} className="nav-link-fresha">
               ✂️ Servicios
-            </Link>
-            <Link 
-              href="/#horarios" 
-              onClick={() => setMenuOpen(false)}
-              style={{ 
-                padding: '0.75rem', 
-                textDecoration: 'none',
-                color: 'var(--text-dark)',
-                borderRadius: '8px'
-              }}
-            >
-              🕐 Horarios
             </Link>
             
             <div style={{ borderTop: '1px solid var(--border)', marginTop: '0.5rem', paddingTop: '0.75rem' }}>
               {loading ? (
                 <div style={{ padding: '1rem', textAlign: 'center' }}>
-                  <div className="spinner" style={{ width: '20px', height: '20px', borderWidth: '2px', margin: '0 auto' }}></div>
+                  <div className="spinner" style={{ width: '20px', height: '20px', margin: '0 auto' }}></div>
                 </div>
               ) : user ? (
                 <>
@@ -256,17 +243,11 @@ export default function Header() {
                       href="/barbero"
                       onClick={() => setMenuOpen(false)}
                       className="btn-fresha btn-primary-fresha"
-                      style={{ 
-                        textAlign: 'center', 
-                        width: '100%', 
-                        marginBottom: '0.75rem',
-                        display: 'block'
-                      }}
+                      style={{ width: '100%', marginBottom: '0.75rem', display: 'block', textAlign: 'center' }}
                     >
                       📅 Mis Turnos
                     </Link>
                   )}
-                  
                   <button
                     onClick={() => {
                       handleLogout()
@@ -274,14 +255,9 @@ export default function Header() {
                     }}
                     disabled={loading}
                     className="btn-fresha btn-secondary-fresha"
-                    style={{ 
-                      textAlign: 'center', 
-                      width: '100%',
-                      cursor: loading ? 'not-allowed' : 'pointer',
-                      opacity: loading ? 0.6 : 1
-                    }}
+                    style={{ width: '100%' }}
                   >
-                    {loading ? '🔄 Cerrando...' : '🚪 Cerrar sesión'}
+                    🚪 Cerrar sesión
                   </button>
                 </>
               ) : (
@@ -290,12 +266,7 @@ export default function Header() {
                     href="/login" 
                     onClick={() => setMenuOpen(false)}
                     className="btn-fresha btn-secondary-fresha"
-                    style={{ 
-                      textAlign: 'center', 
-                      width: '100%', 
-                      marginBottom: '0.75rem',
-                      display: 'block'
-                    }}
+                    style={{ width: '100%', marginBottom: '0.75rem', display: 'block', textAlign: 'center' }}
                   >
                     👤 Iniciar sesión
                   </Link>
@@ -303,11 +274,7 @@ export default function Header() {
                     href="/register" 
                     onClick={() => setMenuOpen(false)}
                     className="btn-fresha btn-primary-fresha"
-                    style={{ 
-                      textAlign: 'center', 
-                      width: '100%',
-                      display: 'block'
-                    }}
+                    style={{ width: '100%', display: 'block', textAlign: 'center' }}
                   >
                     📝 Registrarse
                   </Link>
