@@ -179,207 +179,286 @@ export default function Reserva() {
     setMesActual(nuevoMes)
   }
 
-  // ✅ FUNCIÓN MEJORADA CON DEBUG COMPLETO
-  const handleReserve = async () => {
-    console.log('🔵 ===== INICIO RESERVA =====')
-    console.log('🔵 Paso actual:', paso)
-    setError('')
-    setMessage('')
+// ✅ REEMPLAZAR la función handleReserve() completa en src/app/reserva/page.tsx
+const handleReserve = async () => {
+  console.log('🔵 ===== INICIO RESERVA =====')
+  setError('')
+  setMessage('')
 
-    // 1. VALIDACIÓN DE PASOS
-    if (!servicioSeleccionado || !barberoSeleccionado || !fechaSeleccionada || !horaSeleccionada) {
-      console.error('❌ Faltan datos:', {
-        servicio: servicioSeleccionado?.nombre,
-        barbero: barberoSeleccionado?.nombre,
-        fecha: fechaSeleccionada,
-        hora: horaSeleccionada
-      })
-      setError('Por favor completá todos los pasos')
+  // 1. VALIDACIÓN DE PASOS
+  if (!servicioSeleccionado || !barberoSeleccionado || !fechaSeleccionada || !horaSeleccionada) {
+    console.error('❌ Faltan datos:', {
+      servicio: servicioSeleccionado?.nombre,
+      barbero: barberoSeleccionado?.nombre,
+      fecha: fechaSeleccionada,
+      hora: horaSeleccionada
+    })
+    setError('Por favor completá todos los pasos')
+    return
+  }
+
+  console.log('✅ Todos los pasos completados')
+
+  // 2. VALIDAR CAMPOS DE CONTACTO
+  if (!contact.nombre.trim() || !contact.email.trim() || !contact.whatsapp.trim()) {
+    console.error('❌ Campos vacíos:', contact)
+    setError('Por favor, completá todos los campos antes de confirmar tu turno.')
+    return
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(contact.email)) {
+    console.error('❌ Email inválido:', contact.email)
+    setError('Por favor, ingresá un email válido (ejemplo: tu@email.com)')
+    return
+  }
+
+  const nombreParts = contact.nombre.trim().split(' ')
+  if (nombreParts.length < 2 || nombreParts.some(part => part.length < 2)) {
+    console.error('❌ Nombre incompleto:', contact.nombre)
+    setError('Por favor, ingresá tu nombre completo (nombre y apellido)')
+    return
+  }
+
+  const whatsappNumeros = contact.whatsapp.replace(/\D/g, '')
+  if (whatsappNumeros.length < 8) {
+    console.error('❌ WhatsApp inválido:', contact.whatsapp)
+    setError('Por favor, ingresá un número de WhatsApp válido')
+    return
+  }
+
+  console.log('✅ Validación de campos OK')
+  setLoading(true)
+
+  try {
+    const fecha = fechaSeleccionada.toISOString().split('T')[0]
+    console.log('🔵 Fecha formateada:', fecha)
+
+    // 3. VERIFICAR DISPONIBILIDAD
+    console.log('🔵 Verificando disponibilidad del horario...')
+    const { data: turnoExistente, error: errorCheck } = await supabase
+      .from('turnos')
+      .select('id')
+      .eq('fecha', fecha)
+      .eq('hora', horaSeleccionada)
+      .eq('barbero_id', barberoSeleccionado.id)
+      .maybeSingle()
+
+    if (errorCheck) {
+      console.error('❌ Error al verificar disponibilidad:', errorCheck)
+      throw new Error(`Error al verificar disponibilidad: ${errorCheck.message}`)
+    }
+
+    if (turnoExistente) {
+      console.error('❌ Turno ya existe:', turnoExistente.id)
+      setError('Ese horario ya fue reservado con ese barbero. Elegí otro.')
+      setLoading(false)
       return
     }
 
-    console.log('✅ Todos los pasos completados')
-    console.log('🔵 Servicio:', servicioSeleccionado.nombre)
-    console.log('🔵 Barbero:', barberoSeleccionado.nombre)
-    console.log('🔵 Fecha:', fechaSeleccionada.toISOString().split('T')[0])
-    console.log('🔵 Hora:', horaSeleccionada)
+    console.log('✅ Horario disponible')
 
-    // 2. VALIDAR CAMPOS DE CONTACTO (SOLO SI NO HAY USUARIO)
-    if (!user) {
-      console.log('🔵 Usuario no logueado, validando campos...')
+    // ✅ NUEVO: 4. ASEGURAR QUE EL CLIENTE EXISTA EN LA TABLA
+    console.log('🔵 Verificando si el cliente existe en la BD...')
+    
+    let clienteId = null
+    
+    // Si hay usuario logueado, buscar su ID
+    if (user) {
+      const { data: clienteExistente, error: errorCliente } = await supabase
+        .from('clientes')
+        .select('id')
+        .eq('email', contact.email)
+        .maybeSingle()
       
-      if (!contact.nombre.trim() || !contact.email.trim() || !contact.whatsapp.trim()) {
-        console.error('❌ Campos vacíos:', contact)
-        setError('Por favor, completá todos los campos antes de confirmar tu turno.')
-        return
+      if (errorCliente && errorCliente.code !== 'PGRST116') { // PGRST116 = not found (normal)
+        console.error('❌ Error al buscar cliente:', errorCliente)
+        throw new Error('Error al verificar datos del cliente')
       }
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(contact.email)) {
-        console.error('❌ Email inválido:', contact.email)
-        setError('Por favor, ingresá un email válido (ejemplo: tu@email.com)')
-        return
+      if (clienteExistente) {
+        console.log('✅ Cliente ya existe, ID:', clienteExistente.id)
+        clienteId = clienteExistente.id
+      } else {
+        // Cliente autenticado pero no está en la tabla (caso raro, pero posible)
+        console.log('⚠️ Usuario autenticado sin registro en clientes, creando...')
+        
+        const [nombre, ...apellidoParts] = contact.nombre.trim().split(' ')
+        const apellido = apellidoParts.join(' ')
+        
+        const { data: nuevoCliente, error: errorInsertCliente } = await supabase
+          .from('clientes')
+          .insert([{
+            nombre: nombre,
+            apellido: apellido || nombre, // Si no hay apellido, usar nombre
+            dni: '', // No lo tenemos en este punto
+            email: contact.email,
+            whatsapp: contact.whatsapp
+          }])
+          .select('id')
+          .single()
+        
+        if (errorInsertCliente) {
+          console.error('❌ Error al crear cliente:', errorInsertCliente)
+          throw new Error('Error al registrar tus datos')
+        }
+        
+        clienteId = nuevoCliente.id
+        console.log('✅ Cliente creado, ID:', clienteId)
       }
-
-      const nombreParts = contact.nombre.trim().split(' ')
-      if (nombreParts.length < 2 || nombreParts.some(part => part.length < 2)) {
-        console.error('❌ Nombre incompleto:', contact.nombre)
-        setError('Por favor, ingresá tu nombre completo (nombre y apellido)')
-        return
-      }
-
-      const whatsappNumeros = contact.whatsapp.replace(/\D/g, '')
-      if (whatsappNumeros.length < 8) {
-        console.error('❌ WhatsApp inválido:', contact.whatsapp)
-        setError('Por favor, ingresá un número de WhatsApp válido')
-        return
-      }
-
-      console.log('✅ Validación de campos OK')
     } else {
-      console.log('✅ Usuario logueado, usando datos de sesión')
+      // Usuario NO logueado, verificar si existe por email
+      console.log('🔵 Usuario sin login, buscando por email...')
+      
+      const { data: clienteExistente, error: errorCliente } = await supabase
+        .from('clientes')
+        .select('id')
+        .eq('email', contact.email)
+        .maybeSingle()
+      
+      if (errorCliente && errorCliente.code !== 'PGRST116') {
+        console.error('❌ Error al buscar cliente:', errorCliente)
+        throw new Error('Error al verificar datos del cliente')
+      }
+
+      if (clienteExistente) {
+        console.log('✅ Cliente encontrado por email, ID:', clienteExistente.id)
+        clienteId = clienteExistente.id
+      } else {
+        // Cliente no existe, crearlo
+        console.log('🔵 Cliente nuevo, creando registro...')
+        
+        const [nombre, ...apellidoParts] = contact.nombre.trim().split(' ')
+        const apellido = apellidoParts.join(' ')
+        
+        const { data: nuevoCliente, error: errorInsertCliente } = await supabase
+          .from('clientes')
+          .insert([{
+            nombre: nombre,
+            apellido: apellido || nombre,
+            dni: '',
+            email: contact.email,
+            whatsapp: contact.whatsapp
+          }])
+          .select('id')
+          .single()
+        
+        if (errorInsertCliente) {
+          console.error('❌ Error al crear cliente:', errorInsertCliente)
+          throw new Error('Error al registrar tus datos')
+        }
+        
+        clienteId = nuevoCliente.id
+        console.log('✅ Cliente creado, ID:', clienteId)
+      }
     }
 
-    setLoading(true)
-    console.log('🔵 Loading = true')
+    // 5. CALCULAR SEÑA
+    const montoSena = Math.round(servicioSeleccionado.precio * 0.30)
+    console.log('🔵 Seña calculada (30%):', montoSena)
 
-    try {
-      const fecha = fechaSeleccionada.toISOString().split('T')[0]
-      console.log('🔵 Fecha formateada:', fecha)
+    // 6. PREPARAR DATOS DEL TURNO
+    const datosInsert = {
+      cliente_id: clienteId, // ✅ AHORA SÍ TIENE ID VÁLIDO
+      nombre_cliente: contact.nombre,
+      email: contact.email,
+      whatsapp: contact.whatsapp,
+      fecha: fecha,
+      hora: horaSeleccionada,
+      servicio: servicioSeleccionado.nombre,
+      servicio_id: servicioSeleccionado.id,
+      precio: servicioSeleccionado.precio,
+      duracion: servicioSeleccionado.duracion,
+      barbero_id: barberoSeleccionado.id,
+      barbero_nombre: barberoSeleccionado.nombre,
+      estado: 'reservado',
+      monto_sena: montoSena,
+      sena_pagada: false
+    }
 
-      // 3. VERIFICAR DISPONIBILIDAD
-      console.log('🔵 Verificando disponibilidad del horario...')
-      const { data: turnoExistente, error: errorCheck } = await supabase
-        .from('turnos')
-        .select('id')
-        .eq('fecha', fecha)
-        .eq('hora', horaSeleccionada)
-        .eq('barbero_id', barberoSeleccionado.id)
-        .maybeSingle()
+    console.log('🔵 Datos a insertar:', JSON.stringify(datosInsert, null, 2))
 
-      if (errorCheck) {
-        console.error('❌ Error al verificar disponibilidad:', errorCheck)
-        throw new Error(`Error al verificar disponibilidad: ${errorCheck.message}`)
-      }
+    // 7. INSERTAR TURNO EN LA BASE DE DATOS
+    console.log('🔵 Insertando turno...')
+    const { data: turnoCreado, error: errorTurno } = await supabase
+      .from('turnos')
+      .insert([datosInsert])
+      .select()
+      .single()
 
-      if (turnoExistente) {
-        console.error('❌ Turno ya existe:', turnoExistente.id)
-        setError('Ese horario ya fue reservado con ese barbero. Elegí otro.')
-        setLoading(false)
-        return
-      }
+    if (errorTurno) {
+      console.error('❌ Error al insertar turno:', errorTurno)
+      throw new Error(`Error al crear turno: ${errorTurno.message}`)
+    }
 
-      console.log('✅ Horario disponible')
+    console.log('✅ Turno creado exitosamente:', turnoCreado)
 
-      // 4. CALCULAR SEÑA
-      const montoSena = Math.round(servicioSeleccionado.precio * 0.30)
-      console.log('🔵 Seña calculada (30%):', montoSena)
-
-      // 5. PREPARAR DATOS
-      const datosInsert = {
-        nombre_cliente: contact.nombre,
-        email: contact.email,
-        whatsapp: contact.whatsapp,
-        fecha: fecha,
-        hora: horaSeleccionada,
-        servicio: servicioSeleccionado.nombre,
-        servicio_id: servicioSeleccionado.id,
-        precio: servicioSeleccionado.precio,
-        duracion: servicioSeleccionado.duracion,
-        barbero_id: barberoSeleccionado.id,
-        barbero_nombre: barberoSeleccionado.nombre,
-        estado: 'reservado',
-        monto_sena: montoSena,
-        sena_pagada: false
-      }
-
-      console.log('🔵 Datos a insertar:', JSON.stringify(datosInsert, null, 2))
-
-      // 6. INSERTAR TURNO EN LA BASE DE DATOS
-      console.log('🔵 Insertando turno en la base de datos...')
-      const { data: turnoCreado, error: errorTurno } = await supabase
-        .from('turnos')
-        .insert([datosInsert])
-        .select()
-        .single()
-
-      if (errorTurno) {
-        console.error('❌ Error al insertar turno:', errorTurno)
-        console.error('❌ Código de error:', errorTurno.code)
-        console.error('❌ Detalles:', errorTurno.details)
-        console.error('❌ Hint:', errorTurno.hint)
-        throw new Error(`Error al crear turno: ${errorTurno.message}`)
-      }
-
-      console.log('✅ Turno creado exitosamente:', turnoCreado)
-
-      // 7. ENVIAR EMAIL (SIN BLOQUEAR)
-      console.log('🔵 Enviando email de confirmación...')
-      
-      fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: contact.email,
-          tipo: 'confirmacion_turno',
-          datos: {
-            nombre: contact.nombre,
-            servicio: servicioSeleccionado.nombre,
-            barbero: barberoSeleccionado.nombre,
-            fecha: format(fechaSeleccionada, "EEEE d 'de' MMMM 'de' yyyy", { locale: es }),
-            hora: horaSeleccionada,
-            whatsapp: contact.whatsapp,
-            precio: servicioSeleccionado.precio,
-            duracion: servicioSeleccionado.duracion,
-            monto_sena: montoSena
-          }
-        })
-      })
-      .then(async (res) => {
-        if (res.ok) {
-          console.log('✅ Email enviado correctamente')
-        } else {
-          const errorData = await res.json()
-          console.warn('⚠️ Error al enviar email (no crítico):', errorData)
+    // 8. ENVIAR EMAIL (sin bloquear)
+    console.log('🔵 Enviando email de confirmación...')
+    
+    fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: contact.email,
+        tipo: 'confirmacion_turno',
+        datos: {
+          nombre: contact.nombre,
+          servicio: servicioSeleccionado.nombre,
+          barbero: barberoSeleccionado.nombre,
+          fecha: format(fechaSeleccionada, "EEEE d 'de' MMMM 'de' yyyy", { locale: es }),
+          hora: horaSeleccionada,
+          whatsapp: contact.whatsapp,
+          precio: servicioSeleccionado.precio,
+          duracion: servicioSeleccionado.duracion,
+          monto_sena: montoSena
         }
       })
-      .catch(err => {
-        console.warn('⚠️ Error en envío de email (no crítico):', err)
-      })
-
-      // 8. MOSTRAR ÉXITO
-      console.log('✅ ===== RESERVA COMPLETADA =====')
-      setLoading(false)
-      setShowSuccessModal(true)
-      
-      setTimeout(() => {
-        console.log('🔵 Redirigiendo al inicio...')
-        router.push('/')
-      }, 3000)
-
-    } catch (error: any) {
-      console.error('💥 ===== ERROR CRÍTICO =====')
-      console.error('💥 Tipo:', error.constructor.name)
-      console.error('💥 Mensaje:', error.message)
-      console.error('💥 Stack:', error.stack)
-      
-      // Mensajes de error más específicos
-      let mensajeError = 'Hubo un error al reservar. Intenta nuevamente.'
-      
-      if (error.message.includes('fetch')) {
-        mensajeError = 'Error de conexión. Verificá tu internet e intentá nuevamente.'
-      } else if (error.message.includes('permission')) {
-        mensajeError = 'Error de permisos. Contactá al administrador.'
-      } else if (error.message.includes('foreign key')) {
-        mensajeError = 'Error de configuración. El barbero seleccionado no existe en el sistema.'
-      } else if (error.message.includes('relation')) {
-        mensajeError = 'Error de base de datos. La tabla de turnos no está configurada.'
+    })
+    .then(async (res) => {
+      if (res.ok) {
+        console.log('✅ Email enviado correctamente')
+      } else {
+        const errorData = await res.json()
+        console.warn('⚠️ Error al enviar email (no crítico):', errorData)
       }
-      
-      setError(mensajeError)
-      setLoading(false)
+    })
+    .catch(err => {
+      console.warn('⚠️ Error en envío de email (no crítico):', err)
+    })
+
+    // 9. MOSTRAR ÉXITO
+    console.log('✅ ===== RESERVA COMPLETADA =====')
+    setLoading(false)
+    setShowSuccessModal(true)
+    
+    setTimeout(() => {
+      console.log('🔵 Redirigiendo al inicio...')
+      router.push('/')
+    }, 3000)
+
+  } catch (error: any) {
+    console.error('💥 ===== ERROR CRÍTICO =====')
+    console.error('💥 Tipo:', error.constructor.name)
+    console.error('💥 Mensaje:', error.message)
+    console.error('💥 Stack:', error.stack)
+    
+    let mensajeError = 'Hubo un error al reservar. Intenta nuevamente.'
+    
+    if (error.message.includes('fetch')) {
+      mensajeError = 'Error de conexión. Verificá tu internet e intentá nuevamente.'
+    } else if (error.message.includes('permission')) {
+      mensajeError = 'Error de permisos. Contactá al administrador.'
+    } else if (error.message.includes('foreign key')) {
+      mensajeError = 'Error de configuración. El barbero seleccionado no existe en el sistema.'
+    } else if (error.message.includes('relation')) {
+      mensajeError = 'Error de base de datos. La tabla de turnos no está configurada.'
     }
+    
+    setError(mensajeError)
+    setLoading(false)
   }
+}
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-light)', padding: '2rem 0' }}>
