@@ -18,7 +18,7 @@ export default function Register() {
   const router = useRouter()
 
   // src/app/register/page.tsx
-// ✅ REEMPLAZAR la función handle() completa
+// ✅ REEMPLAZAR SOLO la función handle() con esta versión simplificada
 
 const handle = async (e: any) => {
   e.preventDefault()
@@ -50,43 +50,40 @@ const handle = async (e: any) => {
     if (clienteExistente) {
       console.warn('⚠️ El email ya existe en la tabla clientes')
       
-      // ✅ VERIFICAR SI TAMBIÉN EXISTE EN AUTH
-      console.log('🔍 Verificando si existe cuenta de Auth...')
-      const { data: { user: authExistente }, error: authCheckError } = await supabase.auth.admin.getUserByEmail(form.email)
+      // ✅ Intentar crear usuario en Auth (si ya existe, dará error)
+      console.log('🔍 Intentando crear cuenta Auth...')
+      const { error: authErr } = await supabase.auth.signUp({ 
+        email: form.email, 
+        password: form.password 
+      })
       
-      if (authExistente) {
-        // Caso 1: Ya existe tanto en clientes como en Auth
-        console.log('❌ Usuario completamente registrado')
-        setError('Este email ya está registrado. Por favor inicia sesión.')
-        setLoading(false)
-        return
-      } else {
-        // Caso 2: Existe en clientes pero NO en Auth (hubo una eliminación manual)
-        console.log('⚠️ Cliente existe pero Auth no. Recreando cuenta de Auth...')
-        
-        // Crear solo la cuenta de Auth (el cliente ya existe)
-        const { error: authErr } = await supabase.auth.signUp({ 
-          email: form.email, 
-          password: form.password 
-        })
-        
-        if (authErr) {
-          console.error('❌ Error al crear cuenta Auth:', authErr)
-          setError('Error al completar el registro: ' + authErr.message)
-          setLoading(false)
-          return
+      if (authErr) {
+        // Verificar si el error es por email duplicado
+        if (authErr.message.includes('already registered') || 
+            authErr.message.includes('User already registered') ||
+            authErr.code === 'email_exists') {
+          console.log('❌ Usuario ya existe completamente')
+          setError('Este email ya está registrado. Por favor inicia sesión.')
+        } else {
+          console.error('❌ Error al crear Auth:', authErr)
+          setError('Error al crear la cuenta: ' + authErr.message)
         }
-        
-        console.log('✅ Cuenta Auth recreada exitosamente')
         setLoading(false)
-        alert('¡Registro completado! Revisa tu email para confirmar tu cuenta.')
-        router.push('/login')
         return
       }
+      
+      // ✅ Si llegamos aquí, la cuenta Auth se creó exitosamente
+      console.log('✅ Cuenta Auth creada (cliente ya existía)')
+      setLoading(false)
+      alert('¡Registro completado! Revisa tu email para confirmar tu cuenta.')
+      router.push('/login')
+      return
     }
     
-    // ✅ PASO 2: Si no existe, insertar en clientes primero
-    console.log('🔵 Email no existe, insertando en clientes...')
+    // ✅ PASO 2: El email NO existe, crear cuenta completa
+    console.log('🔵 Email no existe, creando cuenta completa...')
+    
+    // 2a) Insertar en clientes
     const { error: insertErr } = await supabase.from('clientes').insert([{ 
       nombre: form.nombre, 
       apellido: form.apellido, 
@@ -99,7 +96,7 @@ const handle = async (e: any) => {
       console.error('❌ Error al insertar cliente:', insertErr)
       
       // Mensaje de error más amigable
-      if (insertErr.code === '23505') { // Código de violación de unique constraint
+      if (insertErr.code === '23505') { // Código PostgreSQL para unique constraint
         setError('Este email ya está registrado. Intenta con otro o inicia sesión.')
       } else {
         setError('Error al crear tu cuenta: ' + insertErr.message)
@@ -111,7 +108,7 @@ const handle = async (e: any) => {
     
     console.log('✅ Cliente insertado correctamente')
     
-    // ✅ PASO 3: Crear usuario en Auth
+    // 2b) Crear usuario en Auth
     console.log('🔵 Creando cuenta en Auth...')
     const { error: authErr } = await supabase.auth.signUp({ 
       email: form.email, 
@@ -121,12 +118,12 @@ const handle = async (e: any) => {
     if (authErr) {
       console.error('❌ Error al crear Auth:', authErr)
       
-      // ❌ Si falla Auth, ELIMINAR el cliente que acabamos de crear
+      // ❌ Si falla Auth, ELIMINAR el cliente que acabamos de crear para evitar huérfanos
       console.log('🗑️ Eliminando cliente huérfano...')
       await supabase.from('clientes').delete().eq('email', form.email)
       
       // Mensaje amigable según el tipo de error
-      if (authErr.message.includes('already registered')) {
+      if (authErr.message.includes('already registered') || authErr.code === 'email_exists') {
         setError('Este email ya está registrado. Por favor inicia sesión.')
       } else {
         setError('Error al crear la cuenta: ' + authErr.message)
@@ -147,7 +144,6 @@ const handle = async (e: any) => {
     setLoading(false)
   }
 }
-
   return (
     <div style={{ 
       minHeight: '100vh', 
