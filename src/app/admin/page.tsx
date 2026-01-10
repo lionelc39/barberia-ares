@@ -252,9 +252,6 @@ export default function AdminPanel() {
   </Link>
 </div>
 
-      // ✅ FRAGMENTO PARA REEMPLAZAR EN src/app/admin/page.tsx
-// Solo la sección de FILTROS (líneas aproximadas 180-350)
-
 {/* ✅ Filtros mejorados con responsive */}
 <div className="filters-container">
   <div className="filters-wrapper">
