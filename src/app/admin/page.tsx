@@ -252,112 +252,278 @@ export default function AdminPanel() {
   </Link>
 </div>
 
-{/* ✅ Filtros mejorados con responsive */}
-<div className="filters-container">
-  <div className="filters-wrapper">
-    {/* Grupo de filtros temporales */}
-    <div className="filters-temporal">
+
+{/* Filtros mejorados - Mobile Fixed */}
+<div style={{ 
+  background: 'white', 
+  padding: '1rem', 
+  borderRadius: '12px', 
+  border: '1px solid var(--border)',
+  marginBottom: '2rem'
+}}>
+  {/* Wrapper principal */}
+  <div style={{ 
+    display: 'flex', 
+    flexDirection: 'column',
+    gap: '1rem'
+  }}>
+    
+    {/* ===== FILTROS TEMPORALES ===== */}
+    <div style={{ 
+      display: 'grid',
+      gridTemplateColumns: 'repeat(2, 1fr)', // 2 columnas en mobile
+      gap: '0.5rem'
+    }}>
+      {/* En curso */}
       <button
         onClick={() => setFilter('en_curso')}
-        className={`btn-fresha btn-filter-mobile ${filter === 'en_curso' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+        className={`btn-fresha ${filter === 'en_curso' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
         style={{
           backgroundColor: filter === 'en_curso' ? '#ef4444' : undefined,
           borderColor: filter === 'en_curso' ? '#ef4444' : undefined,
+          padding: '0.75rem 0.5rem',
+          fontSize: '0.85rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.5rem',
+          position: 'relative'
         }}
       >
         <span>🔴 En curso</span>
         {conteo.en_curso > 0 && (
-          <span className="filter-badge">
+          <span style={{
+            background: '#dc2626',
+            color: 'white',
+            borderRadius: '10px',
+            padding: '0.125rem 0.5rem',
+            fontSize: '0.75rem',
+            fontWeight: '700',
+            minWidth: '20px',
+            textAlign: 'center'
+          }}>
             {conteo.en_curso}
           </span>
         )}
       </button>
 
+      {/* Hoy */}
       <button
         onClick={() => setFilter('hoy')}
-        className={`btn-fresha btn-filter-mobile ${filter === 'hoy' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+        className={`btn-fresha ${filter === 'hoy' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
         style={{
           backgroundColor: filter === 'hoy' ? '#10b981' : undefined,
           borderColor: filter === 'hoy' ? '#10b981' : undefined,
+          padding: '0.75rem 0.5rem',
+          fontSize: '0.85rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.5rem'
         }}
       >
         <span>📅 Hoy</span>
         {conteo.hoy > 0 && (
-          <span className="filter-badge" style={{ background: '#059669' }}>
+          <span style={{
+            background: '#059669',
+            color: 'white',
+            borderRadius: '10px',
+            padding: '0.125rem 0.5rem',
+            fontSize: '0.75rem',
+            fontWeight: '700',
+            minWidth: '20px',
+            textAlign: 'center'
+          }}>
             {conteo.hoy}
           </span>
         )}
       </button>
 
+      {/* Próximos */}
       <button
         onClick={() => setFilter('proximos')}
-        className={`btn-fresha btn-filter-mobile ${filter === 'proximos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+        className={`btn-fresha ${filter === 'proximos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+        style={{
+          padding: '0.75rem 0.5rem',
+          fontSize: '0.85rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.5rem'
+        }}
       >
         <span>📆 Próximos</span>
         {conteo.proximo > 0 && (
-          <span className="filter-badge" style={{ background: '#3b82f6' }}>
+          <span style={{
+            background: '#3b82f6',
+            color: 'white',
+            borderRadius: '10px',
+            padding: '0.125rem 0.5rem',
+            fontSize: '0.75rem',
+            fontWeight: '700',
+            minWidth: '20px',
+            textAlign: 'center'
+          }}>
             {conteo.proximo}
           </span>
         )}
       </button>
 
+      {/* Pasados */}
       <button
         onClick={() => setFilter('pasados')}
-        className={`btn-fresha btn-filter-mobile ${filter === 'pasados' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+        className={`btn-fresha ${filter === 'pasados' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
         style={{
           backgroundColor: filter === 'pasados' ? '#94a3b8' : undefined,
           borderColor: filter === 'pasados' ? '#94a3b8' : undefined,
+          padding: '0.75rem 0.5rem',
+          fontSize: '0.85rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.5rem'
         }}
       >
         <span>📋 Pasados</span>
         {conteo.pasado > 0 && (
-          <span className="filter-badge" style={{ background: '#64748b' }}>
+          <span style={{
+            background: '#64748b',
+            color: 'white',
+            borderRadius: '10px',
+            padding: '0.125rem 0.5rem',
+            fontSize: '0.75rem',
+            fontWeight: '700',
+            minWidth: '20px',
+            textAlign: 'center'
+          }}>
             {conteo.pasado}
           </span>
         )}
       </button>
 
+      {/* Todos - Span completo */}
       <button
         onClick={() => setFilter('todos')}
-        className={`btn-fresha btn-filter-mobile ${filter === 'todos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+        className={`btn-fresha ${filter === 'todos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+        style={{
+          gridColumn: 'span 2', // ✅ Ocupa 2 columnas
+          padding: '0.75rem 0.5rem',
+          fontSize: '0.85rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.5rem'
+        }}
       >
         <span>📊 Todos</span>
-        <span className="filter-badge">
+        <span style={{
+          background: 'var(--primary)',
+          color: 'white',
+          borderRadius: '10px',
+          padding: '0.125rem 0.5rem',
+          fontSize: '0.75rem',
+          fontWeight: '700',
+          minWidth: '20px',
+          textAlign: 'center'
+        }}>
           {conteo.todos}
         </span>
       </button>
     </div>
 
-    {/* Separador - visible solo en desktop */}
-    <div className="filters-divider"></div>
-
-    {/* Grupo de filtros por barbero */}
-    <div className="filters-barberos">
+    {/* ===== FILTROS POR BARBERO ===== */}
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: '1fr',
+      gap: '0.5rem',
+      paddingTop: '1rem',
+      borderTop: '1px solid var(--border)'
+    }}>
       <button
         onClick={() => setBarberoFilter('todos')}
-        className={`btn-fresha btn-filter-mobile ${barberoFilter === 'todos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+        className={`btn-fresha ${barberoFilter === 'todos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+        style={{
+          padding: '0.75rem',
+          fontSize: '0.9rem'
+        }}
       >
-        👥 Todos
+        👥 Todos los barberos
       </button>
       {barberos.map(barbero => (
         <button
           key={barbero.id}
           onClick={() => setBarberoFilter(barbero.id)}
-          className={`btn-fresha btn-filter-mobile ${barberoFilter === barbero.id ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+          className={`btn-fresha ${barberoFilter === barbero.id ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+          style={{
+            padding: '0.75rem',
+            fontSize: '0.9rem'
+          }}
         >
-          {barbero.nombre}
+          💈 {barbero.nombre}
         </button>
       ))}
     </div>
 
-    {/* Botón actualizar */}
+    {/* ===== BOTÓN ACTUALIZAR ===== */}
     <button
       onClick={cargarTurnos}
       className="btn-fresha btn-secondary-fresha"
+      style={{
+        width: '100%',
+        padding: '0.75rem',
+        fontSize: '0.9rem'
+      }}
     >
       🔄 Actualizar
     </button>
   </div>
+
+  {/* ===== MEDIA QUERIES ===== */}
+  <style jsx>{`
+    @media (min-width: 768px) {
+      /* Tablet/Desktop: Filtros en fila */
+      div[style*="gridTemplateColumns: repeat(2, 1fr)"] {
+        display: flex !important;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      div[style*="gridColumn: span 2"] {
+        grid-column: auto !important;
+      }
+
+      /* Barberos en fila */
+      div[style*="gridTemplateColumns: 1fr"] {
+        display: flex !important;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        border-top: none !important;
+        padding-top: 0 !important;
+      }
+
+      /* Wrapper principal en fila */
+      div > div[style*="flexDirection: column"] {
+        flex-direction: row !important;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      /* Botón actualizar inline */
+      button[style*="width: 100%"] {
+        width: auto !important;
+      }
+
+      /* Agregar separador visual */
+      div[style*="borderTop: 1px solid var(--border)"]::before {
+        content: '';
+        display: block;
+        width: 1px;
+        height: 40px;
+        background: var(--border);
+        margin: 0 0.5rem;
+      }
+    }
+  `}</style>
 </div>
 
 {/* ✅ NOTA: Agregar estos estilos al final del componente */}
