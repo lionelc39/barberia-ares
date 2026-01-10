@@ -252,210 +252,199 @@ export default function AdminPanel() {
   </Link>
 </div>
 
-        {/* Filtros mejorados con badges */}
-        <div style={{ 
-          background: 'white', 
-          padding: '1.5rem', 
-          borderRadius: '12px', 
-          border: '1px solid var(--border)',
-          marginBottom: '2rem'
-        }}>
-          <div style={{ 
-            display: 'flex', 
-            gap: '1rem', 
-            flexWrap: 'wrap', 
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              {/* Filtros temporales con badges */}
-              <button
-                onClick={() => setFilter('en_curso')}
-                className={`btn-fresha ${filter === 'en_curso' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
-                style={{
-                  backgroundColor: filter === 'en_curso' ? '#ef4444' : undefined,
-                  borderColor: filter === 'en_curso' ? '#ef4444' : undefined,
-                  position: 'relative',
-                  paddingRight: '2.5rem'
-                }}
-              >
-                🔴 En curso
-                {conteo.en_curso > 0 && (
-                  <span style={{
-                    position: 'absolute',
-                    top: '-8px',
-                    right: '-8px',
-                    background: '#dc2626',
-                    color: 'white',
-                    borderRadius: '50%',
-                    width: '24px',
-                    height: '24px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0.75rem',
-                    fontWeight: '700',
-                    border: '2px solid white'
-                  }}>
-                    {conteo.en_curso}
-                  </span>
-                )}
-              </button>
+      // ✅ FRAGMENTO PARA REEMPLAZAR EN src/app/admin/page.tsx
+// Solo la sección de FILTROS (líneas aproximadas 180-350)
 
-              <button
-                onClick={() => setFilter('hoy')}
-                className={`btn-fresha ${filter === 'hoy' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
-                style={{
-                  backgroundColor: filter === 'hoy' ? '#10b981' : undefined,
-                  borderColor: filter === 'hoy' ? '#10b981' : undefined,
-                  position: 'relative',
-                  paddingRight: '2.5rem'
-                }}
-              >
-                📅 Hoy
-                {conteo.hoy > 0 && (
-                  <span style={{
-                    position: 'absolute',
-                    top: '-8px',
-                    right: '-8px',
-                    background: '#059669',
-                    color: 'white',
-                    borderRadius: '50%',
-                    width: '24px',
-                    height: '24px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0.75rem',
-                    fontWeight: '700',
-                    border: '2px solid white'
-                  }}>
-                    {conteo.hoy}
-                  </span>
-                )}
-              </button>
+{/* ✅ Filtros mejorados con responsive */}
+<div className="filters-container">
+  <div className="filters-wrapper">
+    {/* Grupo de filtros temporales */}
+    <div className="filters-temporal">
+      <button
+        onClick={() => setFilter('en_curso')}
+        className={`btn-fresha btn-filter-mobile ${filter === 'en_curso' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+        style={{
+          backgroundColor: filter === 'en_curso' ? '#ef4444' : undefined,
+          borderColor: filter === 'en_curso' ? '#ef4444' : undefined,
+        }}
+      >
+        <span>🔴 En curso</span>
+        {conteo.en_curso > 0 && (
+          <span className="filter-badge">
+            {conteo.en_curso}
+          </span>
+        )}
+      </button>
 
-              <button
-                onClick={() => setFilter('proximos')}
-                className={`btn-fresha ${filter === 'proximos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
-                style={{
-                  position: 'relative',
-                  paddingRight: '2.5rem'
-                }}
-              >
-                📆 Próximos
-                {conteo.proximo > 0 && (
-                  <span style={{
-                    position: 'absolute',
-                    top: '-8px',
-                    right: '-8px',
-                    background: '#3b82f6',
-                    color: 'white',
-                    borderRadius: '50%',
-                    width: '24px',
-                    height: '24px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0.75rem',
-                    fontWeight: '700',
-                    border: '2px solid white'
-                  }}>
-                    {conteo.proximo}
-                  </span>
-                )}
-              </button>
+      <button
+        onClick={() => setFilter('hoy')}
+        className={`btn-fresha btn-filter-mobile ${filter === 'hoy' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+        style={{
+          backgroundColor: filter === 'hoy' ? '#10b981' : undefined,
+          borderColor: filter === 'hoy' ? '#10b981' : undefined,
+        }}
+      >
+        <span>📅 Hoy</span>
+        {conteo.hoy > 0 && (
+          <span className="filter-badge" style={{ background: '#059669' }}>
+            {conteo.hoy}
+          </span>
+        )}
+      </button>
 
-              <button
-                onClick={() => setFilter('pasados')}
-                className={`btn-fresha ${filter === 'pasados' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
-                style={{
-                  backgroundColor: filter === 'pasados' ? '#94a3b8' : undefined,
-                  borderColor: filter === 'pasados' ? '#94a3b8' : undefined,
-                  position: 'relative',
-                  paddingRight: '2.5rem'
-                }}
-              >
-                📋 Pasados
-                {conteo.pasado > 0 && (
-                  <span style={{
-                    position: 'absolute',
-                    top: '-8px',
-                    right: '-8px',
-                    background: '#64748b',
-                    color: 'white',
-                    borderRadius: '50%',
-                    width: '24px',
-                    height: '24px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0.75rem',
-                    fontWeight: '700',
-                    border: '2px solid white'
-                  }}>
-                    {conteo.pasado}
-                  </span>
-                )}
-              </button>
+      <button
+        onClick={() => setFilter('proximos')}
+        className={`btn-fresha btn-filter-mobile ${filter === 'proximos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+      >
+        <span>📆 Próximos</span>
+        {conteo.proximo > 0 && (
+          <span className="filter-badge" style={{ background: '#3b82f6' }}>
+            {conteo.proximo}
+          </span>
+        )}
+      </button>
 
-              <button
-                onClick={() => setFilter('todos')}
-                className={`btn-fresha ${filter === 'todos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
-                style={{
-                  position: 'relative',
-                  paddingRight: '2.5rem'
-                }}
-              >
-                📊 Todos
-                <span style={{
-                  position: 'absolute',
-                  top: '-8px',
-                  right: '-8px',
-                  background: 'var(--primary)',
-                  color: 'white',
-                  borderRadius: '50%',
-                  width: '24px',
-                  height: '24px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '0.75rem',
-                  fontWeight: '700',
-                  border: '2px solid white'
-                }}>
-                  {conteo.todos}
-                </span>
-              </button>
-              
-              <div style={{ borderLeft: '1px solid var(--border)', height: '40px', margin: '0 0.5rem' }}></div>
-              
-              {/* Filtros por Barbero */}
-              <button
-                onClick={() => setBarberoFilter('todos')}
-                className={`btn-fresha ${barberoFilter === 'todos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
-              >
-                👥 Todos los barberos
-              </button>
-              {barberos.map(barbero => (
-                <button
-                  key={barbero.id}
-                  onClick={() => setBarberoFilter(barbero.id)}
-                  className={`btn-fresha ${barberoFilter === barbero.id ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
-                >
-                  {barbero.nombre}
-                </button>
-              ))}
-            </div>
-            
-            <button
-              onClick={cargarTurnos}
-              className="btn-fresha btn-secondary-fresha"
-            >
-              🔄 Actualizar
-            </button>
-          </div>
-        </div>
+      <button
+        onClick={() => setFilter('pasados')}
+        className={`btn-fresha btn-filter-mobile ${filter === 'pasados' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+        style={{
+          backgroundColor: filter === 'pasados' ? '#94a3b8' : undefined,
+          borderColor: filter === 'pasados' ? '#94a3b8' : undefined,
+        }}
+      >
+        <span>📋 Pasados</span>
+        {conteo.pasado > 0 && (
+          <span className="filter-badge" style={{ background: '#64748b' }}>
+            {conteo.pasado}
+          </span>
+        )}
+      </button>
+
+      <button
+        onClick={() => setFilter('todos')}
+        className={`btn-fresha btn-filter-mobile ${filter === 'todos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+      >
+        <span>📊 Todos</span>
+        <span className="filter-badge">
+          {conteo.todos}
+        </span>
+      </button>
+    </div>
+
+    {/* Separador - visible solo en desktop */}
+    <div className="filters-divider"></div>
+
+    {/* Grupo de filtros por barbero */}
+    <div className="filters-barberos">
+      <button
+        onClick={() => setBarberoFilter('todos')}
+        className={`btn-fresha btn-filter-mobile ${barberoFilter === 'todos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+      >
+        👥 Todos
+      </button>
+      {barberos.map(barbero => (
+        <button
+          key={barbero.id}
+          onClick={() => setBarberoFilter(barbero.id)}
+          className={`btn-fresha btn-filter-mobile ${barberoFilter === barbero.id ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+        >
+          {barbero.nombre}
+        </button>
+      ))}
+    </div>
+
+    {/* Botón actualizar */}
+    <button
+      onClick={cargarTurnos}
+      className="btn-fresha btn-secondary-fresha"
+    >
+      🔄 Actualizar
+    </button>
+  </div>
+</div>
+
+{/* ✅ NOTA: Agregar estos estilos al final del componente */}
+<style jsx>{`
+  @media (max-width: 768px) {
+    .filters-container {
+      padding: 1rem;
+    }
+
+    .filters-wrapper {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .filters-temporal {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      width: 100%;
+    }
+
+    .filters-barberos {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+      width: 100%;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-filter-mobile {
+      padding: 0.75rem 0.5rem !important;
+      font-size: 0.85rem !important;
+      position: relative;
+    }
+
+    .filter-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 20px;
+      height: 20px;
+      font-size: 0.7rem;
+    }
+
+    /* Ocultar separador en mobile */
+    .filters-divider {
+      display: none;
+    }
+
+    /* Botón actualizar full width en mobile */
+    .filters-wrapper > .btn-secondary-fresha {
+      width: 100%;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .filters-wrapper {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .filters-temporal,
+    .filters-barberos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .filters-barberos {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .filters-divider {
+      display: block;
+      border-left: 1px solid var(--border);
+      height: 40px;
+      margin: 0 0.5rem;
+    }
+  }
+`}</style>
 
         {/* Estadísticas */}
         <div className="stats-grid">
