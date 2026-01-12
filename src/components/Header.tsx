@@ -13,11 +13,9 @@ export default function Header() {
   const router = useRouter()
   const pathname = usePathname()
   
-  // ✅ NUEVO: Prevenir múltiples llamadas simultáneas
   const checkingUser = useRef(false)
   const isInitialized = useRef(false)
 
-  // Detectar si es móvil
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
@@ -27,9 +25,7 @@ export default function Header() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // ✅ MEJORADO: Verificar usuario con protección contra race conditions
   const checkUser = async () => {
-    // Prevenir llamadas simultáneas
     if (checkingUser.current) {
       console.log('⏸️ checkUser ya en ejecución, omitiendo...')
       return
@@ -41,7 +37,6 @@ export default function Header() {
       setLoading(true)
       console.log('🔍 Verificando sesión...')
       
-      // ✅ Dar tiempo a Supabase para procesar tokens de confirmación
       if (!isInitialized.current) {
         await new Promise(resolve => setTimeout(resolve, 500))
       }
@@ -65,7 +60,6 @@ export default function Header() {
       console.log('✅ Usuario autenticado:', session.user.email)
       setUser(session.user)
 
-      // Verificar si es barbero
       const { data: barbero } = await supabase
         .from('barberos')
         .select('*')
@@ -91,18 +85,15 @@ export default function Header() {
     }
   }
 
-  // ✅ MEJORADO: Solo verificar al montar (eliminar dependencia de pathname)
   useEffect(() => {
     checkUser()
   }, [])
 
-  // ✅ Escuchar cambios de autenticación (mantener)
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('🔔 Auth event:', event)
       
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        // Pequeña pausa para asegurar persistencia
         await new Promise(resolve => setTimeout(resolve, 300))
         await checkUser()
       } else if (event === 'SIGNED_OUT') {
@@ -140,7 +131,6 @@ export default function Header() {
       setMenuOpen(false)
       isInitialized.current = false
       
-      // Forzar recarga
       window.location.href = '/'
       
     } catch (err) {
@@ -216,7 +206,7 @@ export default function Header() {
         )}
       </nav>
 
-     {/* Mobile Menu */}
+      {/* Mobile Menu */}
       {isMobile && menuOpen && (
         <div style={{ 
           background: 'white', 
@@ -432,229 +422,3 @@ export default function Header() {
     </header>
   )
 }
-      
-      {/* ===== LINKS DE NAVEGACIÓN ===== */}
-      <Link 
-        href="/" 
-        onClick={() => setMenuOpen(false)} 
-        style={{
-          padding: '1rem 0.75rem',
-          color: 'var(--text-dark)',
-          textDecoration: 'none',
-          fontSize: '0.95rem',
-          fontWeight: '500',
-          borderBottom: '1px solid var(--border)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-          transition: 'background 0.2s ease'
-        }}
-        onMouseDown={(e) => {
-          e.currentTarget.style.background = 'var(--bg-light)'
-        }}
-      >
-        <span style={{ fontSize: '1.25rem' }}>🏠</span>
-        <span>Inicio</span>
-      </Link>
-
-      <Link 
-        href="/#servicios" 
-        onClick={() => setMenuOpen(false)}
-        style={{
-          padding: '1rem 0.75rem',
-          color: 'var(--text-dark)',
-          textDecoration: 'none',
-          fontSize: '0.95rem',
-          fontWeight: '500',
-          borderBottom: '1px solid var(--border)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-          transition: 'background 0.2s ease'
-        }}
-        onMouseDown={(e) => {
-          e.currentTarget.style.background = 'var(--bg-light)'
-        }}
-      >
-        <span style={{ fontSize: '1.25rem' }}>✂️</span>
-        <span>Servicios</span>
-      </Link>
-
-      <Link 
-        href="/#horarios" 
-        onClick={() => setMenuOpen(false)}
-        style={{
-          padding: '1rem 0.75rem',
-          color: 'var(--text-dark)',
-          textDecoration: 'none',
-          fontSize: '0.95rem',
-          fontWeight: '500',
-          borderBottom: '1px solid var(--border)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-          transition: 'background 0.2s ease'
-        }}
-        onMouseDown={(e) => {
-          e.currentTarget.style.background = 'var(--bg-light)'
-        }}
-      >
-        <span style={{ fontSize: '1.25rem' }}>🕐</span>
-        <span>Horarios</span>
-      </Link>
-
-      <Link 
-        href="/#contacto" 
-        onClick={() => setMenuOpen(false)}
-        style={{
-          padding: '1rem 0.75rem',
-          color: 'var(--text-dark)',
-          textDecoration: 'none',
-          fontSize: '0.95rem',
-          fontWeight: '500',
-          borderBottom: '1px solid var(--border)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-          transition: 'background 0.2s ease'
-        }}
-        onMouseDown={(e) => {
-          e.currentTarget.style.background = 'var(--bg-light)'
-        }}
-      >
-        <span style={{ fontSize: '1.25rem' }}>📞</span>
-        <span>Contacto</span>
-      </Link>
-
-      {/* ===== SECCIÓN DE AUTENTICACIÓN ===== */}
-      <div style={{ 
-        marginTop: '1rem',
-        paddingTop: '1rem',
-        borderTop: '2px solid var(--border)' // ✅ Border más grueso
-      }}>
-        {loading ? (
-          <div style={{ 
-            padding: '1.5rem', 
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '0.5rem'
-          }}>
-            <div className="spinner" style={{ width: '24px', height: '24px', margin: '0' }}></div>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              Cargando...
-            </span>
-          </div>
-        ) : user ? (
-          <>
-            {/* Usuario logueado */}
-            <div style={{
-              background: 'var(--bg-light)',
-              padding: '0.75rem 1rem',
-              borderRadius: '8px',
-              marginBottom: '0.75rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem'
-            }}>
-              <span style={{ fontSize: '1.5rem' }}>👤</span>
-              <div>
-                <p style={{ 
-                  fontSize: '0.85rem', 
-                  fontWeight: '600', 
-                  color: 'var(--text-dark)',
-                  marginBottom: '0.125rem'
-                }}>
-                  {user.email}
-                </p>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  Sesión activa
-                </p>
-              </div>
-            </div>
-
-            {/* Botón Mis Turnos (solo barberos) */}
-            {isBarbero && (
-              <Link 
-                href="/barbero"
-                onClick={() => setMenuOpen(false)}
-                className="btn-fresha btn-primary-fresha"
-                style={{ 
-                  width: '100%', 
-                  marginBottom: '0.75rem', 
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  textDecoration: 'none'
-                }}
-              >
-                <span>📅</span>
-                <span>Mis Turnos</span>
-              </Link>
-            )}
-
-            {/* Botón Cerrar Sesión */}
-            <button
-              onClick={() => {
-                handleLogout()
-                setMenuOpen(false)
-              }}
-              disabled={loading}
-              className="btn-fresha btn-secondary-fresha"
-              style={{ 
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem'
-              }}
-            >
-              <span>🚪</span>
-              <span>Cerrar sesión</span>
-            </button>
-          </>
-        ) : (
-          <>
-            {/* Usuario NO logueado */}
-            <Link 
-              href="/login" 
-              onClick={() => setMenuOpen(false)}
-              className="btn-fresha btn-secondary-fresha"
-              style={{ 
-                width: '100%', 
-                marginBottom: '0.75rem', 
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                textDecoration: 'none'
-              }}
-            >
-              <span>👤</span>
-              <span>Iniciar sesión</span>
-            </Link>
-            
-            <Link 
-              href="/register" 
-              onClick={() => setMenuOpen(false)}
-              className="btn-fresha btn-primary-fresha"
-              style={{ 
-                width: '100%', 
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                textDecoration: 'none'
-              }}
-            >
-              <span>📝</span>
-              <span>Registrarse</span>
-            </Link>
-          </>
-        )}
-      </div>
-    </div>
-  </div>
-)}
