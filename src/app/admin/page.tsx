@@ -36,7 +36,6 @@ export default function AdminPanel() {
 
   const ADMIN_PASSWORD = 'barberia2024'
 
-  // Cargar barberos
   useEffect(() => {
     if (isAuthenticated) {
       cargarBarberos()
@@ -62,7 +61,6 @@ export default function AdminPanel() {
         .order('fecha', { ascending: true })
         .order('hora', { ascending: true })
 
-      // Filtro por barbero
       if (barberoFilter !== 'todos') {
         query = query.eq('barbero_id', barberoFilter)
       }
@@ -72,8 +70,6 @@ export default function AdminPanel() {
       if (error) throw error
       
       setTurnos(data || [])
-      
-      // Aplicar filtro temporal
       const filtrados = filtrarTurnos(data || [], filter)
       setTurnosFiltrados(filtrados)
       
@@ -85,7 +81,6 @@ export default function AdminPanel() {
     }
   }
 
-  // Aplicar filtros cuando cambian
   useEffect(() => {
     if (turnos.length > 0) {
       const filtrados = filtrarTurnos(turnos, filter)
@@ -119,7 +114,6 @@ export default function AdminPanel() {
         sena_pagada: pagada 
       }
       
-      // Si se marca como pagada, guardar fecha
       if (pagada) {
         updateData.fecha_pago_sena = new Date().toISOString()
       } else {
@@ -169,7 +163,6 @@ export default function AdminPanel() {
     }
   }, [barberoFilter, isAuthenticated])
 
-  // Calcular ganancias por barbero
   const calcularGanancias = () => {
     const gananciaPorBarbero: Record<string, number> = {}
     
@@ -184,8 +177,6 @@ export default function AdminPanel() {
 
   const ganancias = calcularGanancias()
   const gananciaTotal = Object.values(ganancias).reduce((sum, val) => sum + val, 0)
-
-  // Contar turnos por estado
   const conteo = contarPorEstado(turnos)
 
   if (!isAuthenticated) {
@@ -242,374 +233,132 @@ export default function AdminPanel() {
   return (
     <div className="admin-container">
       <div className="container" style={{ maxWidth: '1400px' }}>
-     <div className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-  <div>
-    <h1 className="admin-title">Panel de Administración</h1>
-    <p className="admin-subtitle">Gestiona los turnos de Barber Ares</p>
-  </div>
-  <Link href="/estadisticas" className="btn-fresha btn-primary-fresha">
-    📊 Ver Estadísticas
-  </Link>
-</div>
+        <div className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <h1 className="admin-title">Panel de Administración</h1>
+            <p className="admin-subtitle">Gestiona los turnos de Barber Ares</p>
+          </div>
+          <Link href="/estadisticas" className="btn-fresha btn-primary-fresha">
+            📊 Ver Estadísticas
+          </Link>
+        </div>
 
-
-{/* Filtros mejorados - Mobile Fixed */}
-<div style={{ 
-  background: 'white', 
-  padding: '1rem', 
-  borderRadius: '12px', 
-  border: '1px solid var(--border)',
-  marginBottom: '2rem'
-}}>
-  {/* Wrapper principal */}
-  <div style={{ 
-    display: 'flex', 
-    flexDirection: 'column',
-    gap: '1rem'
-  }}>
-    
-    {/* ===== FILTROS TEMPORALES ===== */}
-    <div style={{ 
-      display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)', // 2 columnas en mobile
-      gap: '0.5rem'
-    }}>
-      {/* En curso */}
-      <button
-        onClick={() => setFilter('en_curso')}
-        className={`btn-fresha ${filter === 'en_curso' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
-        style={{
-          backgroundColor: filter === 'en_curso' ? '#ef4444' : undefined,
-          borderColor: filter === 'en_curso' ? '#ef4444' : undefined,
-          padding: '0.75rem 0.5rem',
-          fontSize: '0.85rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.5rem',
-          position: 'relative'
-        }}
-      >
-        <span>🔴 En curso</span>
-        {conteo.en_curso > 0 && (
-          <span style={{
-            background: '#dc2626',
-            color: 'white',
-            borderRadius: '10px',
-            padding: '0.125rem 0.5rem',
-            fontSize: '0.75rem',
-            fontWeight: '700',
-            minWidth: '20px',
-            textAlign: 'center'
-          }}>
-            {conteo.en_curso}
-          </span>
-        )}
-      </button>
-
-      {/* Hoy */}
-      <button
-        onClick={() => setFilter('hoy')}
-        className={`btn-fresha ${filter === 'hoy' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
-        style={{
-          backgroundColor: filter === 'hoy' ? '#10b981' : undefined,
-          borderColor: filter === 'hoy' ? '#10b981' : undefined,
-          padding: '0.75rem 0.5rem',
-          fontSize: '0.85rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.5rem'
-        }}
-      >
-        <span>📅 Hoy</span>
-        {conteo.hoy > 0 && (
-          <span style={{
-            background: '#059669',
-            color: 'white',
-            borderRadius: '10px',
-            padding: '0.125rem 0.5rem',
-            fontSize: '0.75rem',
-            fontWeight: '700',
-            minWidth: '20px',
-            textAlign: 'center'
-          }}>
-            {conteo.hoy}
-          </span>
-        )}
-      </button>
-
-      {/* Próximos */}
-      <button
-        onClick={() => setFilter('proximos')}
-        className={`btn-fresha ${filter === 'proximos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
-        style={{
-          padding: '0.75rem 0.5rem',
-          fontSize: '0.85rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.5rem'
-        }}
-      >
-        <span>📆 Próximos</span>
-        {conteo.proximo > 0 && (
-          <span style={{
-            background: '#3b82f6',
-            color: 'white',
-            borderRadius: '10px',
-            padding: '0.125rem 0.5rem',
-            fontSize: '0.75rem',
-            fontWeight: '700',
-            minWidth: '20px',
-            textAlign: 'center'
-          }}>
-            {conteo.proximo}
-          </span>
-        )}
-      </button>
-
-      {/* Pasados */}
-      <button
-        onClick={() => setFilter('pasados')}
-        className={`btn-fresha ${filter === 'pasados' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
-        style={{
-          backgroundColor: filter === 'pasados' ? '#94a3b8' : undefined,
-          borderColor: filter === 'pasados' ? '#94a3b8' : undefined,
-          padding: '0.75rem 0.5rem',
-          fontSize: '0.85rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.5rem'
-        }}
-      >
-        <span>📋 Pasados</span>
-        {conteo.pasado > 0 && (
-          <span style={{
-            background: '#64748b',
-            color: 'white',
-            borderRadius: '10px',
-            padding: '0.125rem 0.5rem',
-            fontSize: '0.75rem',
-            fontWeight: '700',
-            minWidth: '20px',
-            textAlign: 'center'
-          }}>
-            {conteo.pasado}
-          </span>
-        )}
-      </button>
-
-      {/* Todos - Span completo */}
-      <button
-        onClick={() => setFilter('todos')}
-        className={`btn-fresha ${filter === 'todos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
-        style={{
-          gridColumn: 'span 2', // ✅ Ocupa 2 columnas
-          padding: '0.75rem 0.5rem',
-          fontSize: '0.85rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.5rem'
-        }}
-      >
-        <span>📊 Todos</span>
-        <span style={{
-          background: 'var(--primary)',
-          color: 'white',
-          borderRadius: '10px',
-          padding: '0.125rem 0.5rem',
-          fontSize: '0.75rem',
-          fontWeight: '700',
-          minWidth: '20px',
-          textAlign: 'center'
+        <div style={{ 
+          background: 'white', 
+          padding: '1rem', 
+          borderRadius: '12px', 
+          border: '1px solid var(--border)',
+          marginBottom: '2rem'
         }}>
-          {conteo.todos}
-        </span>
-      </button>
-    </div>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.75rem'
+          }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '0.5rem'
+            }}>
+              <button
+                onClick={() => setFilter('en_curso')}
+                className={`btn-fresha ${filter === 'en_curso' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+                style={{
+                  backgroundColor: filter === 'en_curso' ? '#ef4444' : undefined,
+                  borderColor: filter === 'en_curso' ? '#ef4444' : undefined,
+                  padding: '0.75rem 0.5rem',
+                  fontSize: '0.85rem'
+                }}
+              >
+                🔴 En curso {conteo.en_curso > 0 && `(${conteo.en_curso})`}
+              </button>
 
-    {/* ===== FILTROS POR BARBERO ===== */}
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: '1fr',
-      gap: '0.5rem',
-      paddingTop: '1rem',
-      borderTop: '1px solid var(--border)'
-    }}>
-      <button
-        onClick={() => setBarberoFilter('todos')}
-        className={`btn-fresha ${barberoFilter === 'todos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
-        style={{
-          padding: '0.75rem',
-          fontSize: '0.9rem'
-        }}
-      >
-        👥 Todos los barberos
-      </button>
-      {barberos.map(barbero => (
-        <button
-          key={barbero.id}
-          onClick={() => setBarberoFilter(barbero.id)}
-          className={`btn-fresha ${barberoFilter === barbero.id ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
-          style={{
-            padding: '0.75rem',
-            fontSize: '0.9rem'
-          }}
-        >
-          💈 {barbero.nombre}
-        </button>
-      ))}
-    </div>
+              <button
+                onClick={() => setFilter('hoy')}
+                className={`btn-fresha ${filter === 'hoy' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+                style={{
+                  backgroundColor: filter === 'hoy' ? '#10b981' : undefined,
+                  borderColor: filter === 'hoy' ? '#10b981' : undefined,
+                  padding: '0.75rem 0.5rem',
+                  fontSize: '0.85rem'
+                }}
+              >
+                📅 Hoy {conteo.hoy > 0 && `(${conteo.hoy})`}
+              </button>
 
-    {/* ===== BOTÓN ACTUALIZAR ===== */}
-    <button
-      onClick={cargarTurnos}
-      className="btn-fresha btn-secondary-fresha"
-      style={{
-        width: '100%',
-        padding: '0.75rem',
-        fontSize: '0.9rem'
-      }}
-    >
-      🔄 Actualizar
-    </button>
-  </div>
+              <button
+                onClick={() => setFilter('proximos')}
+                className={`btn-fresha ${filter === 'proximos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+                style={{
+                  padding: '0.75rem 0.5rem',
+                  fontSize: '0.85rem'
+                }}
+              >
+                📆 Próximos {conteo.proximo > 0 && `(${conteo.proximo})`}
+              </button>
 
-  {/* ===== MEDIA QUERIES ===== */}
-  <style jsx>{`
-    @media (min-width: 768px) {
-      /* Tablet/Desktop: Filtros en fila */
-      div[style*="gridTemplateColumns: repeat(2, 1fr)"] {
-        display: flex !important;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-      }
+              <button
+                onClick={() => setFilter('pasados')}
+                className={`btn-fresha ${filter === 'pasados' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+                style={{
+                  backgroundColor: filter === 'pasados' ? '#94a3b8' : undefined,
+                  borderColor: filter === 'pasados' ? '#94a3b8' : undefined,
+                  padding: '0.75rem 0.5rem',
+                  fontSize: '0.85rem'
+                }}
+              >
+                📋 Pasados {conteo.pasado > 0 && `(${conteo.pasado})`}
+              </button>
 
-      div[style*="gridColumn: span 2"] {
-        grid-column: auto !important;
-      }
+              <button
+                onClick={() => setFilter('todos')}
+                className={`btn-fresha ${filter === 'todos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+                style={{
+                  gridColumn: 'span 2',
+                  padding: '0.75rem 0.5rem',
+                  fontSize: '0.85rem'
+                }}
+              >
+                📊 Todos ({conteo.todos})
+              </button>
+            </div>
 
-      /* Barberos en fila */
-      div[style*="gridTemplateColumns: 1fr"] {
-        display: flex !important;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        border-top: none !important;
-        padding-top: 0 !important;
-      }
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr',
+              gap: '0.5rem',
+              paddingTop: '0.75rem',
+              borderTop: '1px solid var(--border)'
+            }}>
+              <button
+                onClick={() => setBarberoFilter('todos')}
+                className={`btn-fresha ${barberoFilter === 'todos' ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+                style={{ padding: '0.75rem' }}
+              >
+                👥 Todos los barberos
+              </button>
+              {barberos.map(barbero => (
+                <button
+                  key={barbero.id}
+                  onClick={() => setBarberoFilter(barbero.id)}
+                  className={`btn-fresha ${barberoFilter === barbero.id ? 'btn-primary-fresha' : 'btn-secondary-fresha'}`}
+                  style={{ padding: '0.75rem' }}
+                >
+                  💈 {barbero.nombre}
+                </button>
+              ))}
+            </div>
 
-      /* Wrapper principal en fila */
-      div > div[style*="flexDirection: column"] {
-        flex-direction: row !important;
-        align-items: center;
-        justify-content: space-between;
-      }
+            <button
+              onClick={cargarTurnos}
+              className="btn-fresha btn-secondary-fresha"
+              style={{ width: '100%', padding: '0.75rem' }}
+            >
+              🔄 Actualizar
+            </button>
+          </div>
+        </div>
 
-      /* Botón actualizar inline */
-      button[style*="width: 100%"] {
-        width: auto !important;
-      }
-
-      /* Agregar separador visual */
-      div[style*="borderTop: 1px solid var(--border)"]::before {
-        content: '';
-        display: block;
-        width: 1px;
-        height: 40px;
-        background: var(--border);
-        margin: 0 0.5rem;
-      }
-    }
-  `}</style>
-</div>
-
-{/* ✅ NOTA: Agregar estos estilos al final del componente */}
-<style jsx>{`
-  @media (max-width: 768px) {
-    .filters-container {
-      padding: 1rem;
-    }
-
-    .filters-wrapper {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .filters-temporal {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.5rem;
-      width: 100%;
-    }
-
-    .filters-barberos {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 0.5rem;
-      width: 100%;
-      padding-top: 0.75rem;
-      border-top: 1px solid var(--border);
-    }
-
-    .btn-filter-mobile {
-      padding: 0.75rem 0.5rem !important;
-      font-size: 0.85rem !important;
-      position: relative;
-    }
-
-    .filter-badge {
-      position: absolute;
-      top: -6px;
-      right: -6px;
-      width: 20px;
-      height: 20px;
-      font-size: 0.7rem;
-    }
-
-    /* Ocultar separador en mobile */
-    .filters-divider {
-      display: none;
-    }
-
-    /* Botón actualizar full width en mobile */
-    .filters-wrapper > .btn-secondary-fresha {
-      width: 100%;
-    }
-  }
-
-  @media (min-width: 768px) {
-    .filters-wrapper {
-      flex-direction: row;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .filters-temporal,
-    .filters-barberos {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-    }
-
-    .filters-barberos {
-      border-top: none;
-      padding-top: 0;
-    }
-
-    .filters-divider {
-      display: block;
-      border-left: 1px solid var(--border);
-      height: 40px;
-      margin: 0 0.5rem;
-    }
-  }
-`}</style>
-
-        {/* Estadísticas */}
         <div className="stats-grid">
           <div className="stat-card">
             <p className="stat-label">Total de turnos</p>
@@ -617,25 +366,18 @@ export default function AdminPanel() {
           </div>
           <div className="stat-card" style={{ borderLeft: '4px solid #ef4444' }}>
             <p className="stat-label">🔴 En curso ahora</p>
-            <p className="stat-value" style={{ color: '#ef4444' }}>
-              {conteo.en_curso}
-            </p>
+            <p className="stat-value" style={{ color: '#ef4444' }}>{conteo.en_curso}</p>
           </div>
           <div className="stat-card" style={{ borderLeft: '4px solid #10b981' }}>
             <p className="stat-label">✅ Turnos hoy</p>
-            <p className="stat-value" style={{ color: '#10b981' }}>
-              {conteo.hoy + conteo.en_curso}
-            </p>
+            <p className="stat-value" style={{ color: '#10b981' }}>{conteo.hoy + conteo.en_curso}</p>
           </div>
           <div className="stat-card" style={{ borderLeft: '4px solid var(--primary)' }}>
             <p className="stat-label">💰 Ingresos totales</p>
-            <p className="stat-value" style={{ color: 'var(--primary)' }}>
-              ${gananciaTotal.toLocaleString()}
-            </p>
+            <p className="stat-value" style={{ color: 'var(--primary)' }}>${gananciaTotal.toLocaleString()}</p>
           </div>
         </div>
 
-        {/* Ganancias por Barbero */}
         <div style={{
           background: 'white',
           padding: '1.5rem',
@@ -668,7 +410,6 @@ export default function AdminPanel() {
           </div>
         </div>
 
-        {/* Lista de Turnos */}
         <div>
           {loading ? (
             <div style={{ 
@@ -717,7 +458,6 @@ export default function AdminPanel() {
                       position: 'relative'
                     }}
                   >
-                    {/* Badge de estado temporal */}
                     <div style={{
                       position: 'absolute',
                       top: '1rem',
@@ -740,13 +480,11 @@ export default function AdminPanel() {
 
                     <div style={{ 
                       display: 'grid', 
-                      gridTemplateColumns: 'auto 1fr auto',
-                      gap: '2rem',
-                      alignItems: 'start',
+                      gridTemplateColumns: '1fr',
+                      gap: '1.5rem',
                       paddingTop: '2.5rem'
                     }}>
-                      {/* Fecha y hora */}
-                      <div style={{ minWidth: '140px' }}>
+                      <div>
                         <div style={{ 
                           fontSize: '0.875rem', 
                           fontWeight: '600', 
@@ -760,20 +498,19 @@ export default function AdminPanel() {
                           fontSize: '2rem', 
                           fontWeight: '700', 
                           color: colorEstado,
-                          lineHeight: '1'
+                          lineHeight: '1',
+                          marginBottom: '0.25rem'
                         }}>
                           {turno.hora}
                         </div>
                         <div style={{ 
                           fontSize: '0.85rem', 
-                          color: 'var(--text-muted)',
-                          marginTop: '0.25rem'
+                          color: 'var(--text-muted)'
                         }}>
                           {turno.duracion}
                         </div>
                       </div>
 
-                      {/* Detalles del turno */}
                       <div>
                         <div style={{ 
                           fontSize: '1.125rem', 
@@ -784,7 +521,6 @@ export default function AdminPanel() {
                           {turno.servicio}
                         </div>
                         
-                        {/* Barbero */}
                         <div style={{ 
                           display: 'inline-flex',
                           alignItems: 'center',
@@ -794,7 +530,7 @@ export default function AdminPanel() {
                           borderRadius: '6px',
                           marginBottom: '0.5rem'
                         }}>
-                          <span style={{ fontSize: '1rem' }}>💈</span>
+                          <span>💈</span>
                           <span style={{ fontSize: '0.9rem', fontWeight: '600', color: '#0369a1' }}>
                             {turno.barbero_nombre}
                           </span>
@@ -808,19 +544,14 @@ export default function AdminPanel() {
                           Cliente: <strong style={{ color: 'var(--text-dark)' }}>{turno.nombre_cliente}</strong>
                         </div>
                         
-                        {/* Seña mejorada */}
                         <div style={{
                           background: turno.sena_pagada ? '#dcfce7' : '#fef3c7',
                           border: `2px solid ${turno.sena_pagada ? '#86efac' : '#fcd34d'}`,
                           borderRadius: '8px',
                           padding: '0.75rem',
-                          marginBottom: '0.75rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '1rem'
+                          marginBottom: '0.75rem'
                         }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
                             <span style={{ fontSize: '1.5rem' }}>
                               {turno.sena_pagada ? '✅' : '⏳'}
                             </span>
@@ -840,41 +571,36 @@ export default function AdminPanel() {
                               }}>
                                 ${turno.monto_sena?.toLocaleString() || calcularSena(turno.precio).toLocaleString()}
                               </p>
-                              {turno.sena_pagada && turno.fecha_pago_sena && (
-                                <p style={{ fontSize: '0.75rem', color: '#16a34a', marginTop: '0.25rem' }}>
-                                  Pagada el {format(parseISO(turno.fecha_pago_sena), "dd/MM 'a las' HH:mm", { locale: es })}
-                                </p>
-                              )}
                             </div>
                           </div>
                           <button
                             onClick={() => marcarSenaPagada(turno.id, !turno.sena_pagada)}
                             style={{
-                              padding: '0.5rem 1rem',
+                              width: '100%',
+                              padding: '0.5rem',
                               borderRadius: '6px',
                               border: 'none',
                               background: turno.sena_pagada ? '#f59e0b' : '#16a34a',
                               color: 'white',
                               fontSize: '0.85rem',
                               fontWeight: '600',
-                              cursor: 'pointer',
-                              whiteSpace: 'nowrap'
+                              cursor: 'pointer'
                             }}
                           >
                             {turno.sena_pagada ? 'Marcar pendiente' : 'Marcar pagada'}
                           </button>
                         </div>
                         
-                        {/* Contacto */}
                         <div style={{ 
                           display: 'flex', 
-                          flexWrap: 'wrap', 
+                          flexDirection: 'column',
                           gap: '0.5rem',
-                          fontSize: '0.875rem'
+                          fontSize: '0.875rem',
+                          marginBottom: '1rem'
                         }}>
                           <span style={{ 
                             background: 'var(--bg-light)', 
-                            padding: '0.375rem 0.75rem', 
+                            padding: '0.5rem', 
                             borderRadius: '6px',
                             color: 'var(--text-muted)'
                           }}>
@@ -882,25 +608,21 @@ export default function AdminPanel() {
                           </span>
                           <span style={{ 
                             background: 'var(--bg-light)', 
-                            padding: '0.375rem 0.75rem', 
+                            padding: '0.5rem', 
                             borderRadius: '6px',
                             color: 'var(--text-muted)'
                           }}>
                             📱 {turno.whatsapp}
                           </span>
                         </div>
-                      </div>
 
-                      {/* Precio y acciones */}
-                      <div style={{ minWidth: '200px' }}>
                         <div style={{ 
                           fontSize: '1.75rem', 
                           fontWeight: '700',
                           color: 'var(--text-dark)',
-                          marginBottom: '1rem',
-                          textAlign: 'center'
+                          marginBottom: '1rem'
                         }}>
-                          ${turno.precio?.toLocaleString() || '0'}
+                          Precio: ${turno.precio?.toLocaleString() || '0'}
                         </div>
 
                         <select
@@ -927,6 +649,7 @@ export default function AdminPanel() {
                           <option value="completado">✔️ Completado</option>
                           <option value="cancelado">❌ Cancelado</option>
                         </select>
+
                         <button
                           onClick={() => eliminarTurno(turno.id)}
                           style={{
@@ -938,14 +661,7 @@ export default function AdminPanel() {
                             color: '#dc2626',
                             fontSize: '0.95rem',
                             fontWeight: '500',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseOver={(e) => {
-                            e.currentTarget.style.background = '#fee2e2'
-                          }}
-                          onMouseOut={(e) => {
-                            e.currentTarget.style.background = 'white'
+                            cursor: 'pointer'
                           }}
                         >
                           🗑️ Eliminar
@@ -958,15 +674,6 @@ export default function AdminPanel() {
             </div>
           )}
         </div>
-
-        <style jsx>{`
-          @media (max-width: 968px) {
-            .appointment-card > div {
-              grid-template-columns: 1fr !important;
-              gap: 1rem !important;
-            }
-          }
-        `}</style>
       </div>
     </div>
   )
