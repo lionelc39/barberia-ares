@@ -1,241 +1,153 @@
-// src/components/HeroBanner.tsx
+// src/app/page.tsx
 'use client'
 import Link from 'next/link'
+import HeroBanner from '@/components/HeroBanner'
+import GaleriaCortes from '@/components/GaleriaCortes'
 
-export default function HeroBanner() {
+export default function Home() {
   return (
-    <div style={{ 
-      position: 'relative',
-      width: '100%',
-      height: 'auto', // ✅ Cambio: height auto en lugar de fijo
-      minHeight: '100vh', // ✅ Mobile: usar toda la pantalla
-      overflow: 'hidden'
-    }}>
-      {/* Imagen de Fondo */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundImage: 'url(/hero/hero-barberia.jpg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center center', // ✅ Centrado para mobile
-        backgroundRepeat: 'no-repeat'
-      }}>
-        {/* Overlay oscuro */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.5))' // ✅ Vertical para mobile
-        }}></div>
-      </div>
+    <>
+      {/* Banner Hero con Imagen */}
+      <HeroBanner />
 
-      {/* Contenido sobre la imagen */}
-      <div style={{
-        position: 'relative',
-        zIndex: 1,
-        minHeight: '100vh', // ✅ Ocupa toda la pantalla
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center', // ✅ Centrado en mobile
-        padding: '2rem 1rem', // ✅ Padding reducido para mobile
-        textAlign: 'center' // ✅ Texto centrado en mobile
-      }}>
-        <div style={{ width: '100%', maxWidth: '600px' }}>
-          {/* Badge */}
-          <div style={{
-            display: 'inline-block',
-            background: 'rgba(255, 255, 255, 0.15)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            padding: '0.5rem 1rem', // ✅ Padding reducido
-            borderRadius: '25px',
-            marginBottom: '1rem', // ✅ Margen reducido
-            color: 'white',
-            fontSize: '0.8rem', // ✅ Fuente más pequeña
-            fontWeight: '600',
-            letterSpacing: '0.5px'
-          }}>
-            ⭐ Barbería Premium en Campana
-          </div>
+      {/* Main Content */}
+      <main style={{ padding: '4rem 0' }}>
+        <div className="container">
+          {/* ✅ ACTUALIZACIÓN: Servicios con nuevos precios */}
+          <section id="servicios" style={{ marginBottom: '4rem' }}>
+            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
+                Nuestros servicios
+              </h2>
+              <p style={{ fontSize: '1.125rem', color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto' }}>
+                Descubre nuestros servicios premium de barbería
+              </p>
+            </div>
 
-          {/* Título Principal */}
-          <h1 style={{
-            fontSize: 'clamp(2rem, 8vw, 4.5rem)', // ✅ Ajustado para mobile (era 2.5rem mínimo)
-            fontWeight: '800',
-            color: 'white',
-            marginBottom: '1rem',
-            lineHeight: '1.1',
-            textShadow: '2px 2px 8px rgba(0,0,0,0.5)' // ✅ Sombra más fuerte para legibilidad
-          }}>
-            Tu estilo,<br />
-            nuestra <span style={{ color: '#f59e0b' }}>pasión</span>
-          </h1>
-
-          {/* Subtítulo */}
-          <p style={{
-            fontSize: 'clamp(0.9rem, 3vw, 1.25rem)', // ✅ Ajustado para mobile
-            color: 'rgba(255, 255, 255, 0.95)',
-            marginBottom: '2rem',
-            lineHeight: '1.5',
-            textShadow: '1px 1px 4px rgba(0,0,0,0.5)',
-            padding: '0 0.5rem' // ✅ Padding lateral para evitar pegarse a bordes
-          }}>
-            Reserva tu turno online en segundos. Estilo clásico con técnica moderna.
-          </p>
-
-          {/* Botones - Stack vertical en mobile */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column', // ✅ Columna en mobile
-            gap: '0.75rem',
-            width: '100%',
-            maxWidth: '100%',
-            padding: '0 0.5rem'
-          }}>
-            <Link 
-              href="/reserva" 
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '1rem 1.5rem', // ✅ Padding reducido
-                fontSize: '1rem', // ✅ Fuente reducida
-                fontWeight: '700',
-                color: 'white',
-                background: 'linear-gradient(135deg, #2c6e49 0%, #1a4d2e 100%)',
-                border: 'none',
-                borderRadius: '8px',
-                textDecoration: 'none',
-                boxShadow: '0 4px 14px rgba(44, 110, 73, 0.4)',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                width: '100%' // ✅ Full width en mobile
-              }}
-            >
-              📅 Reservar turno
-            </Link>
-
-            <a 
-              href="https://www.instagram.com/barber.ares" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '1rem 1.5rem',
-                fontSize: '1rem',
-                fontWeight: '700',
-                color: 'white',
-                background: 'rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(10px)',
-                border: '2px solid rgba(255, 255, 255, 0.3)',
-                borderRadius: '8px',
-                textDecoration: 'none',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                width: '100%'
-              }}
-            >
-              📷 Instagram
-            </a>
-          </div>
-
-          {/* Stats - Diseño responsive */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)', // ✅ 3 columnas siempre
-            gap: '1rem', // ✅ Gap reducido
-            marginTop: '2rem',
-            paddingTop: '1.5rem',
-            borderTop: '1px solid rgba(255, 255, 255, 0.2)'
-          }}>
-            <div>
-              <div style={{ 
-                fontSize: 'clamp(1.5rem, 5vw, 2rem)', // ✅ Tamaño adaptativo
-                fontWeight: '800', 
-                color: '#f59e0b', 
-                marginBottom: '0.25rem' 
-              }}>
-                5.0
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+              <div className="service-card-fresha">
+                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>✂️</div>
+                <h3 className="service-title">Corte Personalizado</h3>
+                <p className="service-description">
+                  Corte de cabello personalizado adaptado a tu estilo y preferencias
+                </p>
+                <div className="service-meta">
+                  <span className="service-duration">⏱️ 45 min</span>
+                  <span className="service-price">$17.000</span>
+                </div>
               </div>
-              <div style={{ 
-                fontSize: 'clamp(0.7rem, 2vw, 0.85rem)', // ✅ Texto más pequeño en mobile
-                color: 'rgba(255, 255, 255, 0.8)' 
-              }}>
-                Rating
+
+              <div className="service-card-fresha">
+                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>💈</div>
+                <h3 className="service-title">Corte y Recorte de Barba</h3>
+                <p className="service-description">
+                  Corte de cabello y recorte de barba con máquinas
+                </p>
+                <div className="service-meta">
+                  <span className="service-duration">⏱️ 45 min</span>
+                  <span className="service-price">$19.000</span>
+                </div>
+              </div>
+
+              <div className="service-card-fresha">
+                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🪒</div>
+                <h3 className="service-title">Arreglo de Barba</h3>
+                <p className="service-description">
+                  Perfilado y arreglo profesional de barba
+                </p>
+                <div className="service-meta">
+                  <span className="service-duration">⏱️ 30 min</span>
+                  <span className="service-price">$15.000</span>
+                </div>
+              </div>
+
+              <div className="service-card-fresha">
+                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>💈</div>
+                <h3 className="service-title">Corte + Ritual de Barba</h3>
+                <p className="service-description">
+                  Experiencia completa: corte de cabello y ritual de barba premium
+                </p>
+                <div className="service-meta">
+                  <span className="service-duration">⏱️ 1h 15min</span>
+                  <span className="service-price">$22.000</span>
+                </div>
+              </div>
+
+              <div className="service-card-fresha">
+                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>👴</div>
+                <h3 className="service-title">Corte Jubilados</h3>
+                <p className="service-description">
+                  Corte especial con tarifa reducida para jubilados
+                </p>
+                <div className="service-meta">
+                  <span className="service-duration">⏱️ 45 min</span>
+                  <span className="service-price">$10.000</span>
+                </div>
               </div>
             </div>
-            <div>
-              <div style={{ 
-                fontSize: 'clamp(1.5rem, 5vw, 2rem)', 
-                fontWeight: '800', 
-                color: '#f59e0b', 
-                marginBottom: '0.25rem' 
-              }}>
-                500+
-              </div>
-              <div style={{ 
-                fontSize: 'clamp(0.7rem, 2vw, 0.85rem)', 
-                color: 'rgba(255, 255, 255, 0.8)' 
-              }}>
-                Clientes
-              </div>
-            </div>
-            <div>
-              <div style={{ 
-                fontSize: 'clamp(1.5rem, 5vw, 2rem)', 
-                fontWeight: '800', 
-                color: '#f59e0b', 
-                marginBottom: '0.25rem' 
-              }}>
-                10+
-              </div>
-              <div style={{ 
-                fontSize: 'clamp(0.7rem, 2vw, 0.85rem)', 
-                color: 'rgba(255, 255, 255, 0.8)' 
-              }}>
-                Años
-              </div>
-            </div>
-          </div>
+          </section>
         </div>
-      </div>
+      </main>
 
-      {/* ✅ Media Queries para Desktop */}
-      <style jsx>{`
-        @media (min-width: 768px) {
-          /* Desktop: Altura fija, texto alineado izquierda */
-          div[style*="minHeight: 100vh"] {
-            min-height: 80vh !important;
-            max-height: 700px !important;
-            text-align: left !important;
-            justify-content: flex-start !important;
-            padding: 0 2rem !important;
-          }
+      {/* Galería de Cortes */}
+      <GaleriaCortes />
 
-          /* Contenido alineado izquierda */
-          div[style*="width: 100%"][style*="maxWidth: 600px"] {
-            text-align: left !important;
-          }
+      {/* ✅ ACTUALIZACIÓN: Por qué elegirnos - Nuevos textos */}
+      <section style={{ padding: '4rem 0', background: 'white' }}>
+        <div className="container">
+          <div style={{ marginBottom: '4rem', background: 'var(--bg-light)', padding: '3rem 2rem', borderRadius: '12px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
+                ¿Por qué elegir Barber Ares?
+              </h2>
+            </div>
 
-          /* Botones en fila */
-          div[style*="flexDirection: column"] {
-            flex-direction: row !important;
-            max-width: fit-content !important;
-          }
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem', maxWidth: '1000px', margin: '0 auto' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⭐</div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Alta Satisfacción</h3>
+                <p style={{ color: 'var(--text-muted)' }}>Nuestros clientes quedan encantados con el servicio</p>
+              </div>
 
-          /* Overlay horizontal */
-          div[style*="linear-gradient(to bottom"] {
-            background: linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.3)) !important;
-          }
-        }
-      `}</style>
-    </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👥</div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>500+ Clientes</h3>
+                <p style={{ color: 'var(--text-muted)' }}>Clientes satisfechos confían en nosotros</p>
+              </div>
+
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>+5 Años</h3>
+                <p style={{ color: 'var(--text-muted)' }}>De experiencia en el arte de la barbería</p>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Final */}
+          <section style={{ textAlign: 'center', padding: '3rem 2rem', background: 'white', borderRadius: '12px', border: '1px solid var(--border)' }}>
+            <h2 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-dark)', marginBottom: '1rem' }}>
+              ¿Listo para tu nuevo look?
+            </h2>
+            <p style={{ fontSize: '1.125rem', color: 'var(--text-muted)', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
+              Reserva tu turno ahora y experimenta el mejor servicio de barbería en Campana
+            </p>
+            <Link href="/reserva" className="btn-fresha btn-primary-fresha" style={{ fontSize: '1.125rem', padding: '1rem 2.5rem' }}>
+              Reservar mi turno
+            </Link>
+          </section>
+        </div>
+      </section>
+
+      {/* WhatsApp Float */}
+      <a 
+        href="https://wa.me/5493489594230" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="whatsapp-float" 
+        aria-label="WhatsApp"
+      >
+        💬
+      </a>
+    </>
   )
 }
