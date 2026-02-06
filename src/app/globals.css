@@ -1,261 +1,724 @@
-// src/components/HeroBanner.tsx
-'use client'
-import Link from 'next/link'
+/* ============================================
+   BARBER ARES - GLOBALS CSS
+   ============================================ */
 
-export default function HeroBanner() {
-  return (
-    <div className="hero-banner-container">
-      {/* Imagen de Fondo */}
-      <div className="hero-banner-image">
-        {/* Overlay oscuro */}
-        <div className="hero-banner-overlay"></div>
-      </div>
+/* Variables CSS Globales */
+:root {
+  --primary: #2c6e49;
+  --primary-dark: #1a4d2e;
+  --text-dark: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --bg-light: #f8fafc;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
 
-      {/* Contenido sobre la imagen */}
-      <div className="hero-banner-content">
-        <div className="hero-banner-inner">
-          {/* Badge */}
-          <div className="hero-banner-badge">
-            ⭐ Barbería Premium en Campana
-          </div>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-          {/* Título Principal */}
-          <h1 className="hero-banner-title">
-            Tu estilo,<br />
-            nuestra <span className="hero-banner-accent">pasión</span>
-          </h1>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--text-dark);
+  line-height: 1.6;
+}
 
-          {/* Subtítulo */}
-          <p className="hero-banner-subtitle">
-            Reserva tu turno online en segundos. Estilo clásico con técnica moderna.
-          </p>
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
 
-          {/* Botones */}
-          <div className="hero-banner-buttons">
-            <Link href="/reserva" className="hero-banner-btn hero-banner-btn-primary">
-              📅 Reservar turno
-            </Link>
+/* ============================================
+   HEADER
+   ============================================ */
 
-            <a 
-              href="https://www.instagram.com/barber.ares" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="hero-banner-btn hero-banner-btn-secondary"
-            >
-              📷 Instagram
-            </a>
-          </div>
+.header-fresha {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
 
-          {/* ✅ ACTUALIZACIÓN: Stats con nuevos textos */}
-          <div className="hero-banner-stats">
-            <div className="hero-banner-stat">
-              <div className="hero-banner-stat-value">⭐</div>
-              <div className="hero-banner-stat-label">Alta<br/>Satisfacción</div>
-            </div>
-            <div className="hero-banner-stat">
-              <div className="hero-banner-stat-value">500+</div>
-              <div className="hero-banner-stat-label">Clientes</div>
-            </div>
-            <div className="hero-banner-stat">
-              <div className="hero-banner-stat-value">+5</div>
-              <div className="hero-banner-stat-label">Años</div>
-            </div>
-          </div>
-        </div>
-      </div>
+.nav-fresha {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-      {/* ✅ Estilos en CSS global en lugar de style jsx */}
-      <style jsx global>{`
-        .hero-banner-container {
-          position: relative;
-          width: 100%;
-          height: auto;
-          min-height: 100vh;
-          overflow: hidden;
-        }
+.logo-fresha {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: var(--text-dark);
+}
 
-        .hero-banner-image {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-image: url(/hero/hero-barberia.jpg);
-          background-size: cover;
-          background-position: center 30%;
-          background-repeat: no-repeat;
-        }
+.logo-fresha img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
 
-        .hero-banner-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.5));
-        }
+.logo-text-fresha {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+}
 
-        .hero-banner-content {
-          position: relative;
-          z-index: 1;
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 2rem 1rem;
-          text-align: center;
-        }
+.nav-actions-fresha {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
 
-        .hero-banner-inner {
-          width: 100%;
-          max-width: 600px;
-        }
+.nav-link-fresha {
+  text-decoration: none;
+  color: var(--text-dark);
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
 
-        .hero-banner-badge {
-          display: inline-block;
-          background: rgba(255, 255, 255, 0.15);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          padding: 0.5rem 1rem;
-          border-radius: 25px;
-          margin-bottom: 1rem;
-          color: white;
-          font-size: 0.8rem;
-          font-weight: 600;
-          letter-spacing: 0.5px;
-        }
+.nav-link-fresha:hover {
+  color: var(--primary);
+}
 
-        .hero-banner-title {
-          font-size: clamp(2rem, 8vw, 4.5rem);
-          font-weight: 800;
-          color: white;
-          margin-bottom: 1rem;
-          line-height: 1.1;
-          text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
-        }
+/* ============================================
+   BUTTONS
+   ============================================ */
 
-        .hero-banner-accent {
-          color: #f59e0b;
-        }
+.btn-fresha {
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
 
-        .hero-banner-subtitle {
-          font-size: clamp(0.9rem, 3vw, 1.25rem);
-          color: rgba(255, 255, 255, 0.95);
-          margin-bottom: 2rem;
-          line-height: 1.5;
-          text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
-          padding: 0 0.5rem;
-        }
+.btn-primary-fresha {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  box-shadow: 0 4px 14px rgba(44, 110, 73, 0.4);
+}
 
-        .hero-banner-buttons {
-          display: flex;
-          flex-direction: column;
-          gap: 0.75rem;
-          width: 100%;
-          max-width: 100%;
-          padding: 0 0.5rem;
-        }
+.btn-primary-fresha:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(44, 110, 73, 0.6);
+}
 
-        .hero-banner-btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 1rem 1.5rem;
-          font-size: 1rem;
-          font-weight: 700;
-          color: white;
-          border: none;
-          border-radius: 8px;
-          text-decoration: none;
-          transition: all 0.3s ease;
-          cursor: pointer;
-          width: 100%;
-        }
+.btn-secondary-fresha {
+  background: white;
+  color: var(--text-dark);
+  border: 1px solid var(--border);
+}
 
-        .hero-banner-btn-primary {
-          background: linear-gradient(135deg, #2c6e49 0%, #1a4d2e 100%);
-          box-shadow: 0 4px 14px rgba(44, 110, 73, 0.4);
-        }
+.btn-secondary-fresha:hover {
+  background: var(--bg-light);
+  border-color: var(--primary);
+}
 
-        .hero-banner-btn-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(44, 110, 73, 0.6);
-        }
+/* ============================================
+   SERVICE CARDS
+   ============================================ */
 
-        .hero-banner-btn-secondary {
-          background: rgba(255, 255, 255, 0.15);
-          backdrop-filter: blur(10px);
-          border: 2px solid rgba(255, 255, 255, 0.3);
-        }
+.service-card-fresha {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
 
-        .hero-banner-btn-secondary:hover {
-          background: rgba(255, 255, 255, 0.25);
-          border-color: rgba(255, 255, 255, 0.5);
-        }
+.service-card-fresha:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary);
+}
 
-        .hero-banner-stats {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1rem;
-          margin-top: 2rem;
-          padding-top: 1.5rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.2);
-        }
+.service-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 0.75rem;
+}
 
-        .hero-banner-stat {
-          text-align: center;
-        }
+.service-description {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
 
-        .hero-banner-stat-value {
-          font-size: clamp(1.5rem, 5vw, 2rem);
-          font-weight: 800;
-          color: #f59e0b;
-          margin-bottom: 0.25rem;
-        }
+.service-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
 
-        .hero-banner-stat-label {
-          font-size: clamp(0.65rem, 2vw, 0.85rem);
-          color: rgba(255, 255, 255, 0.8);
-          line-height: 1.3;
-        }
+.service-duration {
+  color: var(--text-muted);
+  font-weight: 500;
+}
 
-        /* ✅ Media Queries para Desktop */
-        @media (min-width: 768px) {
-          .hero-banner-container {
-            min-height: 80vh;
-            max-height: 700px;
-          }
+.service-price {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 1.125rem;
+}
 
-          .hero-banner-image {
-            background-position: center center;
-          }
+/* ============================================
+   INPUTS & FORMS
+   ============================================ */
 
-          .hero-banner-overlay {
-            background: linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.3));
-          }
+.input-group {
+  margin-bottom: 1.25rem;
+}
 
-          .hero-banner-content {
-            min-height: 80vh;
-            max-height: 700px;
-            text-align: left;
-            justify-content: flex-start;
-            padding: 0 2rem;
-          }
+.input-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
 
-          .hero-banner-inner {
-            text-align: left;
-          }
+.input-fresha {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  background: white;
+}
 
-          .hero-banner-buttons {
-            flex-direction: row;
-            max-width: fit-content;
-          }
+.input-fresha:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(44, 110, 73, 0.1);
+}
 
-          .hero-banner-btn {
-            width: auto;
-          }
-        }
-      `}</style>
-    </div>
-  )
+.input-fresha:disabled {
+  background: var(--bg-light);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ============================================
+   ALERTS
+   ============================================ */
+
+.alert-fresha {
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.alert-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.alert-success {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+/* ============================================
+   CALENDAR
+   ============================================ */
+
+.calendar-container {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.calendar-month {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  text-transform: capitalize;
+}
+
+.calendar-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.calendar-nav button {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.calendar-nav button:hover {
+  background: var(--bg-light);
+  border-color: var(--primary);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding: 0.5rem;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-day:hover:not(.disabled) {
+  background: var(--bg-light);
+  border-color: var(--primary);
+}
+
+.calendar-day.selected {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.calendar-day.disabled {
+  background: var(--bg-light);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ============================================
+   TIME SLOTS
+   ============================================ */
+
+.time-slots-container {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.time-slots-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 1.25rem;
+}
+
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.75rem;
+}
+
+.time-slot {
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.time-slot:hover:not(.disabled) {
+  background: var(--bg-light);
+  border-color: var(--primary);
+}
+
+.time-slot.selected {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.time-slot.disabled {
+  background: var(--bg-light);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+/* ============================================
+   STEPS PROGRESS
+   ============================================ */
+
+.steps-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.step.active .step-number {
+  background: var(--primary);
+  color: white;
+}
+
+.step.inactive .step-number {
+  background: var(--bg-light);
+  color: var(--text-muted);
+  border: 2px solid var(--border);
+}
+
+.step-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.step.active .step-label {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.step-separator {
+  width: 60px;
+  height: 2px;
+  background: var(--border);
+  margin: 0 0.5rem;
+}
+
+/* ============================================
+   SUMMARY CARD
+   ============================================ */
+
+.summary-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.summary-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--bg-light);
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  border-top: 2px solid var(--border);
+}
+
+.summary-label {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.summary-total {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* ============================================
+   STATS & ADMIN
+   ============================================ */
+
+.admin-container {
+  min-height: 100vh;
+  background: var(--bg-light);
+  padding: 2rem 0;
+}
+
+.admin-header {
+  margin-bottom: 2rem;
+}
+
+.admin-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
+
+.admin-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-muted);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.appointment-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+
+.appointment-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* ============================================
+   WHATSAPP FLOAT
+   ============================================ */
+
+.whatsapp-float {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  background: #25d366;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* ============================================
+   SPINNER
+   ============================================ */
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .nav-fresha {
+    padding: 0.75rem 1rem;
+  }
+
+  .logo-fresha img {
+    width: 35px;
+    height: 35px;
+  }
+
+  .logo-text-fresha {
+    font-size: 1.125rem;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+
+  .steps-container {
+    padding: 1rem;
+    overflow-x: auto;
+  }
+
+  .step-label {
+    font-size: 0.75rem;
+  }
+
+  .step-separator {
+    width: 30px;
+  }
+
+  .calendar-container {
+    padding: 1rem;
+  }
+
+  .time-slots-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .service-card-fresha {
+    padding: 1.5rem;
+  }
+
+  .admin-title {
+    font-size: 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+  }
+
+  .whatsapp-float {
+    width: 50px;
+    height: 50px;
+    font-size: 1.75rem;
+    bottom: 1.5rem;
+    right: 1.5rem;
+  }
+}
+
+/* ✅ ACTUALIZACIÓN: Hamburger menu mobile más pequeño */
+@media (max-width: 768px) {
+  .nav-fresha button.btn-fresha {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 1.25rem !important;
+    min-width: 40px;
+  }
 }
