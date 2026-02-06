@@ -7,13 +7,13 @@ import GaleriaCortes from '@/components/GaleriaCortes'
 export default function Home() {
   return (
     <>
-      {/* ✨ NUEVO: Banner Hero con Imagen */}
+      {/* Banner Hero con Imagen */}
       <HeroBanner />
 
       {/* Main Content */}
       <main style={{ padding: '4rem 0' }}>
         <div className="container">
-          {/* Servicios */}
+          {/* ✅ ACTUALIZACIÓN: Servicios con nuevos precios */}
           <section id="servicios" style={{ marginBottom: '4rem' }}>
             <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
               <h2 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
@@ -33,19 +33,31 @@ export default function Home() {
                 </p>
                 <div className="service-meta">
                   <span className="service-duration">⏱️ 45 min</span>
-                  <span className="service-price">$28.000</span>
+                  <span className="service-price">$17.000</span>
+                </div>
+              </div>
+
+              <div className="service-card-fresha">
+                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>💈</div>
+                <h3 className="service-title">Corte y Recorte de Barba</h3>
+                <p className="service-description">
+                  Corte de cabello y recorte de barba con máquinas
+                </p>
+                <div className="service-meta">
+                  <span className="service-duration">⏱️ 45 min</span>
+                  <span className="service-price">$19.000</span>
                 </div>
               </div>
 
               <div className="service-card-fresha">
                 <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🪒</div>
-                <h3 className="service-title">Ritual de Barba</h3>
+                <h3 className="service-title">Arreglo de Barba</h3>
                 <p className="service-description">
-                  Servicio personalizado con afeitado, toalla caliente y productos premium
+                  Perfilado y arreglo profesional de barba
                 </p>
                 <div className="service-meta">
-                  <span className="service-duration">⏱️ 45 min</span>
-                  <span className="service-price">$32.000</span>
+                  <span className="service-duration">⏱️ 30 min</span>
+                  <span className="service-price">$15.000</span>
                 </div>
               </div>
 
@@ -53,11 +65,23 @@ export default function Home() {
                 <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>💈</div>
                 <h3 className="service-title">Corte + Ritual de Barba</h3>
                 <p className="service-description">
-                  Experiencia completa de barbería para un look impecable
+                  Experiencia completa: corte de cabello y ritual de barba premium
                 </p>
                 <div className="service-meta">
                   <span className="service-duration">⏱️ 1h 15min</span>
-                  <span className="service-price">$38.000</span>
+                  <span className="service-price">$22.000</span>
+                </div>
+              </div>
+
+              <div className="service-card-fresha">
+                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>👴</div>
+                <h3 className="service-title">Corte Jubilados</h3>
+                <p className="service-description">
+                  Corte especial con tarifa reducida para jubilados
+                </p>
+                <div className="service-meta">
+                  <span className="service-duration">⏱️ 45 min</span>
+                  <span className="service-price">$10.000</span>
                 </div>
               </div>
             </div>
@@ -65,10 +89,10 @@ export default function Home() {
         </div>
       </main>
 
-      {/* ✨ NUEVA: Galería de Cortes */}
+      {/* Galería de Cortes */}
       <GaleriaCortes />
 
-      {/* Por qué elegirnos */}
+      {/* ✅ ACTUALIZACIÓN: Por qué elegirnos - Nuevos textos */}
       <section style={{ padding: '4rem 0', background: 'white' }}>
         <div className="container">
           <div style={{ marginBottom: '4rem', background: 'var(--bg-light)', padding: '3rem 2rem', borderRadius: '12px' }}>
@@ -81,8 +105,8 @@ export default function Home() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem', maxWidth: '1000px', margin: '0 auto' }}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⭐</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>5.0 Rating</h3>
-                <p style={{ color: 'var(--text-muted)' }}>Calificación perfecta de nuestros clientes</p>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Alta Satisfacción</h3>
+                <p style={{ color: 'var(--text-muted)' }}>Nuestros clientes quedan encantados con el servicio</p>
               </div>
 
               <div style={{ textAlign: 'center' }}>
@@ -93,7 +117,7 @@ export default function Home() {
 
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>5+ Años</h3>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>+5 Años</h3>
                 <p style={{ color: 'var(--text-muted)' }}>De experiencia en el arte de la barbería</p>
               </div>
             </div>
