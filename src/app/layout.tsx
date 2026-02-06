@@ -1,153 +1,79 @@
-// src/app/page.tsx
-'use client'
-import Link from 'next/link'
-import HeroBanner from '@/components/HeroBanner'
-import GaleriaCortes from '@/components/GaleriaCortes'
+import './globals.css'
+import Header from '@/components/Header'
 
-export default function Home() {
+export const metadata = {
+  title: 'Barber Ares - Reserva tu turno online',
+  description: 'Reserva tu turno online en Barber Ares. Estilo clásico con técnica moderna.',
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
-      {/* Banner Hero con Imagen */}
-      <HeroBanner />
-
-      {/* Main Content */}
-      <main style={{ padding: '4rem 0' }}>
-        <div className="container">
-          {/* ✅ ACTUALIZACIÓN: Servicios con nuevos precios */}
-          <section id="servicios" style={{ marginBottom: '4rem' }}>
-            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
-                Nuestros servicios
-              </h2>
-              <p style={{ fontSize: '1.125rem', color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto' }}>
-                Descubre nuestros servicios premium de barbería
+    <html lang="es">
+      <body>
+        <Header />
+        {children}
+        <footer>
+          <div className="footer-content">
+            <div className="footer-section">
+              <h4>Barber Ares</h4>
+              <p>Estilo clásico con técnica moderna. Tu barbería de confianza en Campana.</p>
+            </div>
+            
+            {/* ✅ ACTUALIZACIÓN: Horarios actualizados */}
+            <div className="footer-section" id="horarios">
+              <h4>Horarios de atención</h4>
+              <p style={{ marginBottom: '0.5rem' }}><strong>Lunes:</strong> 16:00 - 20:00 hs</p>
+              <p style={{ marginBottom: '0.5rem' }}><strong>Martes a Jueves:</strong> 10:00 - 12:30 hs y 16:00 - 20:00 hs</p>
+              <p style={{ marginBottom: '0.5rem' }}><strong>Viernes y Sábado:</strong> 10:00 - 20:00 hs</p>
+              <p style={{ marginTop: '0.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Domingo: Cerrado</p>
+            </div>
+            
+            {/* ✅ ACTUALIZACIÓN: Contacto con dirección y Google Maps */}
+            <div className="footer-section" id="contacto">
+              <h4>Contacto</h4>
+              <p style={{ marginBottom: '0.5rem' }}>
+                <a 
+                  href="https://www.google.com/maps/search/?api=1&query=Avenida+Doctor+Ricardo+Balbín+982+Campana+Buenos+Aires" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ 
+                    color: 'var(--primary)', 
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '0.5rem',
+                    transition: 'color 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary-dark)'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                >
+                  <span>📍</span>
+                  <span>Av. Doctor Ricardo Balbín 982, Campana, Buenos Aires</span>
+                </a>
               </p>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-              <div className="service-card-fresha">
-                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>✂️</div>
-                <h3 className="service-title">Corte Personalizado</h3>
-                <p className="service-description">
-                  Corte de cabello personalizado adaptado a tu estilo y preferencias
-                </p>
-                <div className="service-meta">
-                  <span className="service-duration">⏱️ 45 min</span>
-                  <span className="service-price">$17.000</span>
-                </div>
-              </div>
-
-              <div className="service-card-fresha">
-                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>💈</div>
-                <h3 className="service-title">Corte y Recorte de Barba</h3>
-                <p className="service-description">
-                  Corte de cabello y recorte de barba con máquinas
-                </p>
-                <div className="service-meta">
-                  <span className="service-duration">⏱️ 45 min</span>
-                  <span className="service-price">$19.000</span>
-                </div>
-              </div>
-
-              <div className="service-card-fresha">
-                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🪒</div>
-                <h3 className="service-title">Arreglo de Barba</h3>
-                <p className="service-description">
-                  Perfilado y arreglo profesional de barba
-                </p>
-                <div className="service-meta">
-                  <span className="service-duration">⏱️ 30 min</span>
-                  <span className="service-price">$15.000</span>
-                </div>
-              </div>
-
-              <div className="service-card-fresha">
-                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>💈</div>
-                <h3 className="service-title">Corte + Ritual de Barba</h3>
-                <p className="service-description">
-                  Experiencia completa: corte de cabello y ritual de barba premium
-                </p>
-                <div className="service-meta">
-                  <span className="service-duration">⏱️ 1h 15min</span>
-                  <span className="service-price">$22.000</span>
-                </div>
-              </div>
-
-              <div className="service-card-fresha">
-                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>👴</div>
-                <h3 className="service-title">Corte Jubilados</h3>
-                <p className="service-description">
-                  Corte especial con tarifa reducida para jubilados
-                </p>
-                <div className="service-meta">
-                  <span className="service-duration">⏱️ 45 min</span>
-                  <span className="service-price">$10.000</span>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-      </main>
-
-      {/* Galería de Cortes */}
-      <GaleriaCortes />
-
-      {/* ✅ ACTUALIZACIÓN: Por qué elegirnos - Nuevos textos */}
-      <section style={{ padding: '4rem 0', background: 'white' }}>
-        <div className="container">
-          <div style={{ marginBottom: '4rem', background: 'var(--bg-light)', padding: '3rem 2rem', borderRadius: '12px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
-                ¿Por qué elegir Barber Ares?
-              </h2>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem', maxWidth: '1000px', margin: '0 auto' }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⭐</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Alta Satisfacción</h3>
-                <p style={{ color: 'var(--text-muted)' }}>Nuestros clientes quedan encantados con el servicio</p>
-              </div>
-
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👥</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>500+ Clientes</h3>
-                <p style={{ color: 'var(--text-muted)' }}>Clientes satisfechos confían en nosotros</p>
-              </div>
-
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>+5 Años</h3>
-                <p style={{ color: 'var(--text-muted)' }}>De experiencia en el arte de la barbería</p>
-              </div>
+              <p style={{ marginBottom: '0.5rem' }}>📞 WhatsApp: +54 9 3489 594230</p>
+              <a 
+                href="https://www.instagram.com/barber.ares" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ color: 'var(--primary)', textDecoration: 'none' }}
+              >
+                📷 @barber.ares
+              </a>
             </div>
           </div>
-
-          {/* CTA Final */}
-          <section style={{ textAlign: 'center', padding: '3rem 2rem', background: 'white', borderRadius: '12px', border: '1px solid var(--border)' }}>
-            <h2 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-dark)', marginBottom: '1rem' }}>
-              ¿Listo para tu nuevo look?
-            </h2>
-            <p style={{ fontSize: '1.125rem', color: 'var(--text-muted)', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
-              Reserva tu turno ahora y experimenta el mejor servicio de barbería en Campana
-            </p>
-            <Link href="/reserva" className="btn-fresha btn-primary-fresha" style={{ fontSize: '1.125rem', padding: '1rem 2.5rem' }}>
-              Reservar mi turno
-            </Link>
-          </section>
-        </div>
-      </section>
-
-      {/* WhatsApp Float */}
-      <a 
-        href="https://wa.me/5493489594230" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="whatsapp-float" 
-        aria-label="WhatsApp"
-      >
-        💬
-      </a>
-    </>
+          <div style={{ 
+            textAlign: 'center', 
+            marginTop: '2rem', 
+            paddingTop: '2rem', 
+            borderTop: '1px solid var(--border)',
+            fontSize: '0.875rem',
+            color: 'var(--text-muted)'
+          }}>
+            <p>© 2025 Barber Ares. Todos los derechos reservados.</p>
+          </div>
+        </footer>
+      </body>
+    </html>
   )
 }
