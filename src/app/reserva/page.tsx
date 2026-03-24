@@ -49,77 +49,54 @@ const SERVICIOS = [
   }
 ]
 
-// ✅ ACTUALIZACIÓN 2: Solo Fabrizio disponible (Paul oculto)
+// ✅ ACTUALIZACIÓN 2: Solo Fabrizio disponible (Paul oculto- cuando dice activo true, barbero activo, si dice false, no aparece en la pagina el barbero, oculto)
 const BARBEROS = [
   {
     id: 'fab-12345',
     nombre: 'Fabrizio',
     duracionTurno: 60,
     icono: '👨‍🦰',
-    activo: true // ✅ Activo
+    activo: true
   },
   {
     id: 'paul-67890',
-    nombre: 'Paul',
+    nombre: 'Staff Disponible',
+    descripcion: 'Disponible según agenda',
     duracionTurno: 30,
     icono: '👨‍🦱',
-    activo: false // ✅ OCULTO - Se puede reactivar cambiando a true
+    activo: true
   }
-].filter(b => b.activo) // ✅ Solo mostrar barberos activos
+].filter(b => b.activo)
 
 // ✅ ACTUALIZACIÓN 3: Horarios actualizados
 const generarHorarios = (fecha: Date, barbero: any) => {
   const dia = fecha.getDay()
-  
-  // 0 = Domingo (cerrado)
   if (dia === 0) return []
-  
-  const horarios = []
+
+  const horarios: string[] = []
   const intervalo = barbero?.duracionTurno || 30
-  
-  // ✅ Lunes (1): 16 a 20 hs
+
+  const agregarSlots = (inicioH: number, inicioM: number, cierreMin: number) => {
+    let totalMin = inicioH * 60 + inicioM
+    while (totalMin + intervalo <= cierreMin) {
+      const h = Math.floor(totalMin / 60)
+      const m = totalMin % 60
+      horarios.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`)
+      totalMin += intervalo
+    }
+  }
+
   if (dia === 1) {
-    for (let h = 16; h < 20; h++) {
-      for (let m = 0; m < 60; m += intervalo) {
-        horarios.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`)
-      }
-    }
+    agregarSlots(16, 0, 20 * 60)
+  } else if (dia >= 2 && dia <= 4) {
+    agregarSlots(10, 0, 12 * 60 + 30)
+    agregarSlots(16, 0, 20 * 60)
+  } else if (dia === 5 || dia === 6) {
+    agregarSlots(10, 0, 20 * 60)
   }
-  
-  // ✅ Martes a Jueves (2-4): 10 a 12:30 y 16 a 20 hs
-  else if (dia >= 2 && dia <= 4) {
-    // Mañana: 10:00 - 12:30
-    for (let h = 10; h < 12; h++) {
-      for (let m = 0; m < 60; m += intervalo) {
-        horarios.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`)
-      }
-    }
-    // 12:00 y 12:30 si corresponde
-    if (intervalo === 30) {
-      horarios.push('12:00')
-      horarios.push('12:30')
-    }
-    
-    // Tarde: 16:00 - 20:00
-    for (let h = 16; h < 20; h++) {
-      for (let m = 0; m < 60; m += intervalo) {
-        horarios.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`)
-      }
-    }
-  }
-  
-  // ✅ Viernes y Sábado (5-6): 10 a 20 hs corrido
-  else if (dia === 5 || dia === 6) {
-    for (let h = 10; h < 20; h++) {
-      for (let m = 0; m < 60; m += intervalo) {
-        horarios.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`)
-      }
-    }
-  }
-  
+
   return horarios
 }
-
 export default function Reserva() {
   const router = useRouter()
   
@@ -137,6 +114,12 @@ export default function Reserva() {
   const [user, setUser] = useState<any>(null)
   const [clienteData, setClienteData] = useState<any>(null)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
+  useEffect(() => {
+    if (!showSuccessModal) return
+    const handlePopState = () => setShowSuccessModal(false)
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [showSuccessModal])
 
   // Cargar datos del usuario autenticado
   useEffect(() => {
