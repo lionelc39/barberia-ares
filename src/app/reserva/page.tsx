@@ -114,6 +114,7 @@ export default function Reserva() {
   const [user, setUser] = useState<any>(null)
   const [clienteData, setClienteData] = useState<any>(null)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [emailEnviado, setEmailEnviado] = useState<boolean | null>(null)
   useEffect(() => {
     if (!showSuccessModal) return
     const handlePopState = () => setShowSuccessModal(false)
@@ -406,36 +407,35 @@ export default function Reserva() {
 
       console.log('🔵 Enviando email de confirmación...')
       
-      fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: contact.email,
-          tipo: 'confirmacion_turno',
-          datos: {
-            nombre: contact.nombre,
-            servicio: servicioSeleccionado.nombre,
-            barbero: barberoSeleccionado.nombre,
-            fecha: format(fechaSeleccionada, "EEEE d 'de' MMMM 'de' yyyy", { locale: es }),
-            hora: horaSeleccionada,
-            whatsapp: contact.whatsapp,
-            precio: servicioSeleccionado.precio,
-            duracion: servicioSeleccionado.duracion,
-            monto_sena: montoSena
-          }
-        })
-      })
-      .then(async (res) => {
-        if (res.ok) {
-          console.log('✅ Email enviado correctamente')
-        } else {
-          const errorData = await res.json()
-          console.warn('⚠️ Error al enviar email (no crítico):', errorData)
-        }
-      })
-      .catch(err => {
-        console.warn('⚠️ Error en envío de email (no crítico):', err)
-      })
+     let emailOk = false
+try {
+  const emailRes = await fetch('/api/send-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      to: contact.email,
+      tipo: 'confirmacion_turno',
+      datos: {
+        nombre: contact.nombre,
+        servicio: servicioSeleccionado.nombre,
+        barbero: barberoSeleccionado.nombre,
+        fecha: format(fechaSeleccionada, "EEEE d 'de' MMMM 'de' yyyy", { locale: es }),
+        hora: horaSeleccionada,
+        whatsapp: contact.whatsapp,
+        precio: servicioSeleccionado.precio,
+        duracion: servicioSeleccionado.duracion,
+        monto_sena: montoSena
+      }
+    })
+  })
+  emailOk = emailRes.ok
+  console.log(emailOk ? '✅ Email enviado correctamente' : '⚠️ Email no enviado')
+} catch (err) {
+  console.warn('⚠️ Error en envío de email:', err)
+  emailOk = false
+}
+
+setEmailEnviado(emailOk)
 
       console.log('✅ ===== RESERVA COMPLETADA =====')
       setLoading(false)
@@ -515,25 +515,50 @@ export default function Reserva() {
               </p>
               
               {/* ✅ ACTUALIZACIÓN: Mensaje de spam */}
-              <div style={{
-                background: '#fef3c7',
-                border: '1px solid #f59e0b',
-                borderRadius: '8px',
-                padding: '1rem',
-                marginBottom: '1.5rem'
-              }}>
-                <p style={{ 
-                  fontSize: '0.9rem', 
-                  color: '#92400e',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem'
-                }}>
-                  <span>📧</span>
-                  <span>Si no recibís el correo de confirmación, por favor revisá tu casilla de spam o correo no deseado.</span>
-                </p>
-              </div>
+             {emailEnviado === true && (
+  <div style={{
+    background: '#dcfce7',
+    border: '1px solid #86efac',
+    borderRadius: '8px',
+    padding: '1rem',
+    marginBottom: '1.5rem'
+  }}>
+    <p style={{ fontSize: '0.9rem', color: '#166534', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+      <span>📧</span>
+      <span>Email de confirmación enviado a <strong>{contact.email}</strong>. Revisá spam si no aparece.</span>
+    </p>
+  </div>
+)}
+
+{emailEnviado === false && (
+  <div style={{
+    background: '#fee2e2',
+    border: '1px solid #fca5a5',
+    borderRadius: '8px',
+    padding: '1rem',
+    marginBottom: '1.5rem'
+  }}>
+    <p style={{ fontSize: '0.9rem', color: '#991b1b', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+      <span>⚠️</span>
+      <span>No pudimos enviar el email. <strong>Guardá los datos de tu turno</strong> antes de cerrar.</span>
+    </p>
+  </div>
+)}
+
+{emailEnviado === null && (
+  <div style={{
+    background: '#fef3c7',
+    border: '1px solid #f59e0b',
+    borderRadius: '8px',
+    padding: '1rem',
+    marginBottom: '1.5rem'
+  }}>
+    <p style={{ fontSize: '0.9rem', color: '#92400e', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+      <span>📧</span>
+      <span>Enviando confirmación por email...</span>
+    </p>
+  </div>
+)}
 
               <div style={{
                 background: 'var(--bg-light)',
