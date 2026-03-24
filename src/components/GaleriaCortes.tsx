@@ -14,7 +14,7 @@ export default function GaleriaCortes() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   return (
-    <>
+    <div>
       <section style={{ padding: '5rem 0', background: 'var(--bg-light)' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
@@ -62,7 +62,10 @@ export default function GaleriaCortes() {
                 />
                 <div style={{
                   position: 'absolute',
-                  top: 0, left: 0, width: '100%', height: '100%',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
                   background: 'rgba(0,0,0,0.4)',
                   display: 'flex',
                   alignItems: 'center',
@@ -89,12 +92,18 @@ export default function GaleriaCortes() {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-            
+            <a
               href="https://www.instagram.com/barber.ares"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-fresha btn-primary-fresha"
-              style={{ fontSize: '1.125rem', padding: '1rem 2.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.75rem' }}
+              style={{
+                fontSize: '1.125rem',
+                padding: '1rem 2.5rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.75rem'
+              }}
             >
               📷 Ver más en Instagram
             </a>
@@ -106,19 +115,36 @@ export default function GaleriaCortes() {
         <div
           onClick={() => setImagenAmpliada(null)}
           style={{
-            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
             background: 'rgba(0,0,0,0.9)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            zIndex: 9999, padding: '2rem', cursor: 'pointer'
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '2rem',
+            cursor: 'pointer'
           }}
         >
           <button
             onClick={() => setImagenAmpliada(null)}
             style={{
-              position: 'absolute', top: '2rem', right: '2rem',
-              background: 'white', border: 'none', borderRadius: '50%',
-              width: '50px', height: '50px', fontSize: '1.5rem',
-              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              position: 'absolute',
+              top: '2rem',
+              right: '2rem',
+              background: 'white',
+              border: 'none',
+              borderRadius: '50%',
+              width: '50px',
+              height: '50px',
+              fontSize: '1.5rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
             }}
           >
@@ -129,13 +155,15 @@ export default function GaleriaCortes() {
             alt="Imagen ampliada"
             onClick={(e) => e.stopPropagation()}
             style={{
-              maxWidth: '90%', maxHeight: '90%',
-              objectFit: 'contain', borderRadius: '12px',
+              maxWidth: '90%',
+              maxHeight: '90%',
+              objectFit: 'contain',
+              borderRadius: '12px',
               boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
             }}
           />
         </div>
       )}
-    </>
+    </div>
   )
 }
