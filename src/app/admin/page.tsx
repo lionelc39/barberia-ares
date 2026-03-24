@@ -218,7 +218,7 @@ export default function AdminPanel() {
     alert('Error de conexión. Intenta nuevamente.')
     setPassword('')
   }
-}}
+}}>
               <div className="input-group">
                 <label className="input-label">Contraseña</label>
                 <input
