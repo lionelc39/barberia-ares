@@ -34,8 +34,6 @@ export default function AdminPanel() {
   const [password, setPassword] = useState('')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
-  const ADMIN_PASSWORD = 'barberia2024'
-
   useEffect(() => {
     if (isAuthenticated) {
       cargarBarberos()
@@ -199,15 +197,28 @@ export default function AdminPanel() {
                 Ingresa tu contraseña para acceder
               </p>
             </div>
-            <form onSubmit={(e) => {
-              e.preventDefault()
-              if (password === ADMIN_PASSWORD) {
-                setIsAuthenticated(true)
-              } else {
-                alert('Contraseña incorrecta')
-                setPassword('')
-              }
-            }}>
+            <form onSubmit={async (e) => {
+  e.preventDefault()
+  try {
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    })
+
+    if (res.ok) {
+      setIsAuthenticated(true)
+    } else {
+      const data = await res.json()
+      alert(data.error || 'Contraseña incorrecta')
+      setPassword('')
+    }
+  } catch (err) {
+    console.error('Error al verificar contraseña:', err)
+    alert('Error de conexión. Intenta nuevamente.')
+    setPassword('')
+  }
+}}
               <div className="input-group">
                 <label className="input-label">Contraseña</label>
                 <input
