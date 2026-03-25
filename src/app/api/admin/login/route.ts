@@ -1,47 +1,35 @@
-// src/app/api/health/route.ts
+// src/app/api/admin/login/route.ts
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
-export async function GET() {
+export async function POST(request: Request) {
   try {
-    console.log('🏥 Health check ejecutado:', new Date().toISOString())
-    
-    // Hacer una query simple para mantener Supabase activo
-    const { data, error } = await supabase
-      .from('turnos')
-      .select('id')
-      .limit(1)
-    
-    if (error) {
-      console.error('❌ Error en health check:', error)
+    const { password } = await request.json()
+
+    const adminPassword = process.env.ADMIN_PASSWORD
+
+    if (!adminPassword) {
+      console.error('❌ ADMIN_PASSWORD no está configurada')
       return NextResponse.json(
-        { 
-          status: 'error', 
-          message: error.message,
-          timestamp: new Date().toISOString()
-        },
+        { error: 'Configuración incompleta del servidor' },
         { status: 500 }
       )
     }
-    
-    return NextResponse.json({ 
-      status: 'ok',
-      message: 'Sistema activo',
-      timestamp: new Date().toISOString(),
-      database: 'connected'
-    })
-    
+
+    if (password !== adminPassword) {
+      return NextResponse.json(
+        { error: 'Contraseña incorrecta' },
+        { status: 401 }
+      )
+    }
+
+    return NextResponse.json({ success: true })
+
   } catch (error: any) {
-    console.error('💥 Error crítico en health check:', error)
+    console.error('💥 Error en login admin:', error)
     return NextResponse.json(
-      { 
-        status: 'error', 
-        message: error.message,
-        timestamp: new Date().toISOString()
-      },
+      { error: 'Error interno del servidor' },
       { status: 500 }
     )
   }
