@@ -27,7 +27,7 @@ const SERVICIOS = [
     id: 'corte-jubilados',
     nombre: 'Corte Jubilados',
     duracion: '45 min',
-    precio: 10000, // ✅ Actualizado de 20000 a 10000
+    precio: 12000, // ✅ Actualizado de 20000 a 10000
     descripcion: 'Corte especial con tarifa reducida para jubilados',
     icono: '👴'
   },
@@ -54,7 +54,7 @@ const BARBEROS = [
   {
     id: 'fab-12345',
     nombre: 'Fabrizio',
-    duracionTurno: 60,
+    duracionTurno: 45,
     icono: '👨‍🦰',
     activo: true
   },
@@ -62,7 +62,7 @@ const BARBEROS = [
     id: 'paul-67890',
     nombre: 'Staff Disponible',
     descripcion: 'Disponible según agenda',
-    duracionTurno: 30,
+    duracionTurno: 45,
     icono: '👨‍🦱',
     activo: true
   }
@@ -71,10 +71,10 @@ const BARBEROS = [
 // ✅ ACTUALIZACIÓN 3: Horarios actualizados
 const generarHorarios = (fecha: Date, barbero: any) => {
   const dia = fecha.getDay()
-  if (dia === 0) return []
+  if (dia === 0) return []  // domingo cerrado
 
   const horarios: string[] = []
-  const intervalo = barbero?.duracionTurno || 30
+  const intervalo = barbero?.duracionTurno || 45
 
   const agregarSlots = (inicioH: number, inicioM: number, cierreMin: number) => {
     let totalMin = inicioH * 60 + inicioM
@@ -87,12 +87,16 @@ const generarHorarios = (fecha: Date, barbero: any) => {
   }
 
   if (dia === 1) {
+    // Lunes: 16:00 - 20:00
     agregarSlots(16, 0, 20 * 60)
   } else if (dia >= 2 && dia <= 4) {
+    // Martes a Jueves: 10:00 - 12:30 y 16:00 - 20:00
     agregarSlots(10, 0, 12 * 60 + 30)
     agregarSlots(16, 0, 20 * 60)
   } else if (dia === 5 || dia === 6) {
-    agregarSlots(10, 0, 20 * 60)
+    // Viernes y Sábado: 10:00 - 13:30 y 16:00 - 20:00
+    agregarSlots(10, 0, 13 * 60 + 30)
+    agregarSlots(16, 0, 20 * 60)
   }
 
   return horarios
