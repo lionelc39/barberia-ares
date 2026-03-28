@@ -515,7 +515,7 @@ setEmailEnviado(emailOk)
               </p>
               
               {/* ✅ ACTUALIZACIÓN: Mensaje de spam */}
-             {emailEnviado === true && (
+            {emailEnviado === true && (
   <div style={{
     background: '#dcfce7',
     border: '1px solid #86efac',
@@ -547,19 +547,18 @@ setEmailEnviado(emailOk)
 
 {emailEnviado === null && (
   <div style={{
-    background: '#fef3c7',
-    border: '1px solid #f59e0b',
+    background: '#f0f9ff',
+    border: '1px solid #bae6fd',
     borderRadius: '8px',
     padding: '1rem',
     marginBottom: '1.5rem'
   }}>
-    <p style={{ fontSize: '0.9rem', color: '#92400e', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+    <p style={{ fontSize: '0.9rem', color: '#0369a1', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
       <span>📧</span>
       <span>Enviando confirmación por email...</span>
     </p>
   </div>
 )}
-
               <div style={{
                 background: 'var(--bg-light)',
                 padding: '1.5rem',
@@ -739,26 +738,7 @@ setEmailEnviado(emailOk)
               </button>
             </div>
 
-            <div style={{
-              background: '#fef3c7',
-              border: '2px solid #f59e0b',
-              borderRadius: '12px',
-              padding: '1.5rem',
-              marginBottom: '2rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}>
-              <span style={{ fontSize: '2rem' }}>⚠️</span>
-              <div>
-                <p style={{ fontSize: '1rem', fontWeight: '600', color: '#92400e', marginBottom: '0.5rem' }}>
-                  Seña obligatoria
-                </p>
-                <p style={{ fontSize: '0.9rem', color: '#78350f' }}>
-                  Tu turno queda confirmado únicamente una vez abonada la seña correspondiente.
-                </p>
-              </div>
-            </div>
+           
 
             <div className="calendar-container">
               <div className="calendar-header">
@@ -872,21 +852,7 @@ setEmailEnviado(emailOk)
               </button>
             </div>
 
-            <div style={{
-              background: '#fef3c7',
-              border: '2px solid #f59e0b',
-              borderRadius: '12px',
-              padding: '1.25rem',
-              marginBottom: '1.5rem',
-              textAlign: 'center'
-            }}>
-              <p style={{ fontSize: '0.95rem', fontWeight: '600', color: '#92400e', marginBottom: '0.5rem' }}>
-                ⚠️ Seña obligatoria
-              </p>
-              <p style={{ fontSize: '0.85rem', color: '#78350f' }}>
-                Recordá que tu turno queda confirmado únicamente una vez abonada la seña correspondiente.
-              </p>
-            </div>
+           
 
             <div className="summary-card">
               <h3 className="summary-title">Resumen de tu reserva</h3>
