@@ -21,12 +21,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
             
             <div className="footer-section" id="horarios">
-              <h4>Horarios de atención</h4>
-              <p style={{ marginBottom: '0.5rem' }}><strong>Lunes:</strong> 16:00 - 20:00 hs</p>
-              <p style={{ marginBottom: '0.5rem' }}><strong>Martes a Jueves:</strong> 10:00 - 12:30 hs y 16:00 - 20:00 hs</p>
-              <p style={{ marginBottom: '0.5rem' }}><strong>Viernes y Sábado:</strong> 10:00 - 20:00 hs</p>
-              <p style={{ marginTop: '0.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Domingo: Cerrado</p>
-            </div>
+  <h4>Horarios de atención</h4>
+  <p style={{ marginBottom: '0.5rem' }}><strong>Lunes:</strong> 16:00 - 20:00 hs</p>
+  <p style={{ marginBottom: '0.5rem' }}><strong>Martes a Jueves:</strong> 10:00 - 12:30 hs y 16:00 - 20:00 hs</p>
+  <p style={{ marginBottom: '0.5rem' }}><strong>Viernes y Sábado:</strong> 10:00 - 13:30 hs y 16:00 - 20:00 hs</p>
+  <p style={{ marginTop: '0.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Domingo: Cerrado</p>
+</div>
             
             <div className="footer-section" id="contacto">
               <h4>Contacto</h4>
