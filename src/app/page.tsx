@@ -81,7 +81,7 @@ export default function Home() {
                 </p>
                 <div className="service-meta">
                   <span className="service-duration">⏱️ 45 min</span>
-                  <span className="service-price">$10.000</span>
+                  <span className="service-price">$12.000</span>
                 </div>
               </div>
             </div>
